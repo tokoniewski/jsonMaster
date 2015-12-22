@@ -1,0 +1,228 @@
+{
+  "XML_DIZ_INFO": {
+    "MASTER_PAD_VERSION_INFO": {
+      "MASTER_PAD_VERSION": "3.01",
+      "MASTER_PAD_EDITOR": "PADGen 3.0.1.35 http://www.padgen.org",
+      "MASTER_PAD_INFO": "Portable Application Description, or PAD for short, is a data set that is used by shareware authors to disseminate information to anyone interested in their software products. To find out more go to http://www.asp-shareware.org/pad"
+    },
+    "Company_Info": {
+      "Company_Name": "Tracker Software Products (Canada) Ltd",
+      "Address_1": "3-466",
+      "Address_2": "Trans Canada Highway",
+      "City_Town": "Duncan",
+      "State_Province": "BC",
+      "Zip_Postal_Code": "V9L3R6",
+      "Country": "Canada",
+      "Company_WebSite_URL": "http://www.docu-track.com",
+      "Contact_Info": {
+        "Author_First_Name": "John",
+        "Author_Last_Name": "Verbeeten",
+        "Author_Email": "johnv@docu-track.com",
+        "Contact_First_Name": "John",
+        "Contact_Last_Name": "Verbeeten",
+        "Contact_Email": "johnv@docu-track.com"
+      },
+      "Support_Info": {
+        "Sales_Email": "sales@docu-track.com",
+        "Support_Email": "upgrades@docu-track.com",
+        "General_Email": "info@docu-track.com",
+        "Sales_Phone": "+1 250-597-1621",
+        "Fax_Phone": "+1 250-597-1623"
+      }
+    },
+    "Program_Info": {
+      "Program_Name": "PDF-XChange PDF Viewer",
+      "Program_Version": "2.0043.4",
+      "Program_Release_Month": "09",
+      "Program_Release_Day": "09",
+      "Program_Release_Year": "2009",
+      "Program_Cost_Dollars": "0.00",
+      "Program_Cost_Other_Code": "EUR",
+      "Program_Cost_Other": "0.00",
+      "Program_Type": "Freeware",
+      "Program_Release_Status": "Major Update",
+      "Program_Install_Support": "Install and Uninstall",
+      "Program_OS_Support": "Windows2000,WinXP,Windows2003,Windows Vista Starter,Windows Vista Home Basic,Windows Vista Home Premium,Windows Vista Business,Windows Vista Enterprise,Windows Vista Ultimate,Windows Vista Home Basic x64,Windows Vista Home Premium x64,Windows Vista Business x64,Windows Vista Enterprise x64,Windows Vista Ultimate x64",
+      "Program_Language": "English,Chinese,ChineseSimplified,ChineseTraditional,Czech,Danish,Finnish,French,German,Hungarian,Italian,Japanese,Korean,Other,Polish,Portuguese,Romanian,Russian,Spanish,Turkish",
+      "Program_Change_Info": "PDF-XChange PDF Viewer",
+      "Program_Specific_Category": "Utilities",
+      "Program_Category_Class": "System Utilities::File & Disk Management",
+      "Program_System_Requirements": "Windows 32/64 Bit OS - Vista Compatible",
+      "File_Info": {
+        "File_Size_Bytes": "12751480",
+        "File_Size_K": "12452",
+        "File_Size_MB": "12.16"
+      },
+      "Expire_Info": {
+        "Has_Expire_Info": "N",
+        "Expire_Based_On": "Either/Or",
+        "Expire_Other_Info": "NONE - Free to use"
+      }
+    },
+    "Program_Descriptions": {
+      "English": {
+        "Keywords": "PDF, PDF-Tools,Acrobat,PDF Driver,Print Driver, Document Management,Document Archiving, Document Management,Electronic File Management,API,SDK,Royalty Free,Electronic Filing,DM,EDM,EDMS,Workflow,Merge,Split,Extract,Image Conversion,Image2PDF, Foxit",
+        "Char_Desc_45": "Comprehensive PDF Viewing  File manipulation.",
+        "Char_Desc_80": "Free - Everything needed to View PDF Files and more - Developer SDK available",
+        "Char_Desc_250": "Free - All you will ever need to View Adobe PDF files, Export PDF pages and files to Image Formats, Type on PDF pages and much much more. From the same authors as the award winning PDF-XChange product line - Developer SDK available",
+        "Char_Desc_450": "Free - All you will ever need to View Adobe PDF files, Export PDF pages and files to Image Formats, Type on PDF pages and much much more. From the same authors as the award winning PDF-XChange product line - Developer SDK available",
+        "Char_Desc_2000": "Free - All you will ever need to View Adobe PDF files, Export PDF pages and files to Image Formats, Type on PDF pages and much much more. From the same authors as the award winning PDF-XChange product line - Developer SDK available"
+      }
+    },
+    "Web_Info": {
+      "Application_URLs": {
+        "Application_Info_URL": "http://www.docu-track.com/home/prod_user/",
+        "Application_Order_URL": "http://www.docu-track.com/home/prod_user/",
+        "Application_Screenshot_URL": "http://www.docu-track.com/PdfVwrSample.png",
+        "Application_Icon_URL": "http://www.docu-track.com/PDFX3.png",
+        "Application_XML_File_URL": "http://www.docu-track.co.uk/PDFXVW1.xml"
+      },
+      "Download_URLs": {
+        "Primary_Download_URL": "http://www.docu-track.com/PDFXVwer.zip",
+        "Secondary_Download_URL": "http://www.docu-track.co.uk/PDFXVwer.zip"
+      }
+    },
+    "Permissions": {
+      "Distribution_Permissions": "This software may be distributed freely provided it is supplied complete and in tact and freely without any charge or payment required.",
+      "EULA": "Tracker Software Products Ltd - PDF-XChange Versions 1 - 3.x End User License Agreement.
+PDF-XChange PDF Viewer End User License Agreement.
+This License Agreement details your rights and entitlement to use the PDF-XChange Viewer,
+please read it carefully and treat it as valuable Property.
+This Agreement is between you (either an individual or an entity) and Tracker Software Products Ltd,
+(hereinafter called Tracker) Tracker is willing to grant you the following the rights to use the Software
+known as PDF-XChange Viewer and its accompanying documentation (collectively, the Software) only if you
+agree to be bound by all of the terms and conditions of this Agreement, relevant to the version in use as
+distinguished by the term End User. If you are not willing to agree to any of the terms of this Agreement,
+Tracker is unwilling to grant you a license and you should not open the sealed media package or distributed
+software files if it was supplied by electronic distribution.
+
+Instead you must promptly return any sealed media packaging and documentation or in the case of
+electronic distribution delete it completely from any storage media you may have saved it to.
+This software is provided for your use free of charge, provided you are the End User and do not intend to
+incorporate it into any other product or software package intended for resale or distribution for any purpose
+whatsoever.
+
+1.Ownership: The Software is and shall remain a propriety product of Tracker. Tracker and Trackers
+suppliers shall retain ownership of all Copyrights, Patents, Trademarks, Trade Names, Trade Secrets and
+other proprietary rights relating to or residing in the Software. Except for the license grant provided in
+Section 2, you shall have no right, title or interest in or to the Software. The Software is licensed, not sold,
+to you for you to use only under the terms of this Agreement. If you agree to be bound by all of the terms of
+this Agreement you will only own the media (if any) on which the Software may have been provided, not the
+Software itself.
+
+2.Grant of License: Tracker grants you a personal, non-exclusive, non-transferable, restricted right to use
+one copy of the Software in the country in which you acquired the Software, for your own internal business or private 
+purposes, subject to the terms of this license Agreement. This license does not allow accessing of the API of
+the software, even if you have a developer kit, this is an END USER ONLY product, not a developer
+software tool, should you wish to utilise a version of this product within another software application you
+must purchase and license a software development kit intended specifically for this purpose, available from
+Tracker Software Products. You understand that Tracker may update the Software at any time and in doing
+so incurs no obligation pursuant to this Agreement to furnish such updates to you.
+
+3.Restrictions: I) TRACKER RESERVES ALL RIGHTS IN THE SOFTWARE NOT EXPRESSLY GRANTED TO YOU.
+II) EXCEPT AS PERMITTED IN SECTION 2, YOU MAY NOT USE, COPY, MODIFY, CREATE DERIVATIVE WORKS
+OF, SELL, DISTRIBUTE, ASSIGN, PLEDGE, SUB LICENSE, LEASE, LOAN, RENT, TIMESHARE, DELIVER,
+ELECTRONICALLY TRANSMIT OR OTHERWISE TRANSFER THE SOFTWARE, NOR PERMIT ANY THIRD PARTY
+TO DO ANY OF THE FOREGOING. III) YOU MAY NOT REMOVE FROM THE SOFTWARE, OR ALTER ANY OF THE
+TRADEMARKS, TRADE NAMES, LOGOs, PATENT OR COPYRIGHT NOTICES OR MARKINGS, OR ADD ANY OF
+THE FOREGOING TO THE SOFTWARE. IV) YOU MAY NOT DERIVE OR ATTEMPT TO DERIVE ANY OF THE
+SOURCE CODE BY ANY MEANS, NOR PERMIT A THIRD PARTY TO DO SO. V) YOU MAY NOT REVERSE
+ENGINEER, DECOMPILE, DISASSEMBLE, OR TRANSLATE THIS SOFTWARE OR ANY PART THEREOF. VI) NO
+LICENSES ARE GRANTED UNDER THIS LICENSE AGREEMENT UNDER ANY PATENTS OF IMAGES. IF YOU
+BELIEVE YOU NEED ANY SUCH LICENSES YOU MUST CONTACT ANY THIRD PARTIES YOURSELF DIRECTLY
+TO OBTAIN THEM.
+
+4.Limited Warranty: Tracker does not warrant that the functions contained in the Software will meet your
+requirement or that the operation of the Software will be uninterrupted or error free (it is finished As Is and
+without warranty as to performance or results). Tracker warrants that the media that the Software is
+supplied on will be free from defect for a period of thirty (30) days from the receipt of the Software or in the
+case of Electronic Supply that the wrapper the Software is contained in, shall be complete and without
+defect on our end of the connection.  We cannot warranty however that it will be received in the same
+condition as the means of supply is beyond our absolute control. This Limited Warranty shall be void if
+failure of the Software to conform with the Warranty has resulted from improper installation, misuse,
+testing, neglect, accident, fire or other hazard or any breach of this Agreement. This warranty is limited to
+you and is not transferable. No Tracker Supplier, agent or employee is authorized to make any changes,
+modifications, alterations, extensions or additions to this limited Warranty. This Software is not warranted
+against infringement of any third part patents. Tracker has done no investigation as to infringement, and
+you agree that you will assume the risk of any such infringement from your use of Software.
+5.No Other Warranties: OTHER THAN THE FOREGOING LIMITED WARRANTY, WHICH IS MADE SOLELY BY
+TRACKER AND NOT BY ANY OTHER TRACKER SUPPLIER, THIS SOFTWARE IS BEING LICENSED TO YOU AS
+IS WITHOUT WARRANTY OF ANY KIND. TRACKER AND ITS SUPPLIERS DISCLAIM AND REJECT ALL OTHER
+WARRANTIES EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT OF THIRD
+PARTY RIGHTS. SOME JURISDICTIONS DO NOT ALLOW THE DISCLAIMER OF IMPLIED WARRANTIES, SO THE
+ABOVE DISCLAIMER MAY NOT APPLY TO YOU, IN WHICH CASE THE DURATION OF ANY IMPLIED
+WARRANTIES IS SIXTY (60) DAYS FROM THE DATE THE SOFTWARE IS RECEIVED BY YOU. THIS WARRANTY
+GIVES YOU SPECIFIC LEGAL RIGHTS; YOU MAY HAVE OTHER LEGAL RIGHTS, WHICH VARY FROM
+JURISDICTION TO JURISDICTION.
+
+6.Limitation Of Liability: TRACKERS AGGREGATE LIABILITY IN CONNECTION WITH THIS AGREEMENT
+AND THE SOFTWARE, REGARDLESS OF THE FORM OF ACTION GIVING RISE TO SUCH LIABILITY (WHETHER
+IN CONTRACT, TORT OR OTHERWISE), SHALL NOT EXCEED THE LICENSE FEES PAID BY YOU TO TRACKER
+UNDER THIS AGREEMENT. NO TRACKER SUPPLIERS SHALL HAVE ANY LIABILITY WHATSOEVER UNDER
+THIS AGREEMENT. TRACKER AND ANY OF TRACKERS SUPPLIERS SHALL NOT BE LIABLE FOR ANY
+INDIRECT, EXEMPLARY, SPECIAL, CONSEQUENTIAL, OR INCIDENTAL DAMAGES OF ANY KIND (INCLUDING
+WITHOUT LIMITATION LOST PROFITS), EVEN IF TRACKER OR SUCH SUPPLIER HAS BEEN ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGES. SOME JURISDICTIONS DO NOT ALLOW THE LIMITATION OR EXCLUSION
+OF LIABILITY FOR CONSEQUENTIAL OR INCIDENTAL DAMAGES SO THE ABOVE LIMITATION OR EXCLUSION
+MAY NOT APPLY TO YOU. TRACKER SHALL NOT BE LIABLE FOR ANY CLAIMS OF THIRD PARTIES RELATING
+TO THE SOFTWARE. THE LIMITED WARRANTY, LIMITED REMEDIES AND LIMITED LIABILITY PROVISIONS
+CONTAINED IN THIS AGREEMENT ARE FUNDAMENTAL PARTS OF THE BASIS OF TRACKERS BARGAIN
+HEREUNDER, AND TRACKER WOULD NOT BE ABLE TO PROVIDE THE SOFTWARE TO YOU ABSENT OF SUCH
+LIMITATIONS.
+
+7:Free and Trial Versions: Where the Software is provided free on a permanent, semi permanent, limited
+use or trial basis all the terms relating to licensing shall be identical, save that you accept there has been no
+financial gain on Trackers part and as such you use the Software without warranty or guarantees of any
+kind. The risk is entirely yours and you acknowledge this. You agree to indemnify us against all claims by
+you or any third party for any reason whatsoever. You accept that we have provided the Software for your
+sole benefit and have received nothing to our benefit and as such cannot be held responsible in any way and
+for any reason.
+
+8.Termination: You may terminate this Agreement at any time. This Agreement shall terminate
+automatically upon breach of any term of this Agreement. Upon termination you shall destroy the Software
+and any backup copy you made pursuant to this Agreement.
+
+9.Government End Users: This paragraph applies only if you are a branch or agency of the U.S.
+government. The Software is comprised of Commercial Computer Software and Commercial Computer
+Software Documentation as such terms are used in 48 C.F.R. 12.212 (Sept 1995) and is provided to the
+Government I) for acquisition by or on behalf of civilian agencies, consistent with the policy set forth in
+C.F.R. 12.212 or II) for acquisition by or on behalf of units of the Department of Defence, consistent with the
+policies set forth in 48 C.F.R. 227-7202-1 (Jun 1995) and 227-7202-3(Jun 1995).
+
+10.General: This Agreement shall for all purposes be governed by and interpreted in accordance with the
+laws of England.
+
+If any of the provisions of this Agreement is held by a court of competent jurisdiction to be unenforceable for
+any reason, the remaining provisions hereof shall be unaffected and remain in full force and effect. This
+Agreement is the final, complete and exclusive Agreement between the parties relating to the subject matter
+hereof, and supersedes all prior or contemporaneous understandings and agreements relating to such
+subject matter, whether oral or written, and may not be amended except by writing executed by both
+parties.
+
+11. Copyright: This Software and all accompanying documentation are copyrighted and Tracker reserves all
+rights.
+
+The accompanying End User License Agreement specifies the terms and conditions governing use of this
+product
+
+Copyright 2001-9 Tracker Software Products Ltd, Units 1-3, Burleigh Oaks, East Street, Turners Hill, West Sussex.
+England.RH10 4PZ
+
+http://www.docu-track.com email:sales@docu-track.com
+ALL RIGHTS RESERVED.
+All Other Trademarks/Copyrights acknowledged and are the property of their respective owners, including: Zlib by
+Marl Adler and Jean-Loup Gailly, Little CMS by Marti Maria and IPG (C) 1991-98."
+    },
+    "Affiliates": {
+      "Affiliates_FORM": "Y",
+      "Affiliates_VERSION": "1.2",
+      "Affiliates_URL": "http://www.asp-shareware.org/pad/extensions/Affiliates.htm"
+    },
+    "ASP": {
+      "ASP_FORM": "Y",
+      "ASP_Member": "Y",
+      "ASP_Member_Number": "04740"
+    }
+  }
+}
