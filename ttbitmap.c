@@ -19,7 +19,7 @@ long mAskMinMax (Class *cl, Object *obj, struct MUIP_AskMinMax *msg)
  {
   DoSuperMethodA (cl, obj, (Msg)msg);
   msg->MinMaxInfo->MinWidth += 20;
-  msg->MinMaxInfo->DefWidth += 100;
+  msg->MinMaxInfo->DefWidth += 80;
   msg->MinMaxInfo->MaxWidth += 3000;
   msg->MinMaxInfo->MinHeight += 20;
   msg->MinMaxInfo->DefHeight += 30;
@@ -62,6 +62,7 @@ long mDraw (Class *cl, Object *obj, struct MUIP_Draw *msg)
   WritePixel (rp, _mleft(obj) + 19 + dx, _mtop(obj) + 20 + dy);
   WritePixel (rp, _mleft(obj) + 20 + dx, _mtop(obj) + 19 + dy);
    * */
+  printf("drawing\n");
   return 0;
  }
 

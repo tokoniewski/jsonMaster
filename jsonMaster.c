@@ -43,6 +43,7 @@ Object *menu_mui_prefs;
 Object *menu_ttfutf_file;
 Object *ttf_string=0;
 Object *ttf_popup;
+Object *ttbitmap_obj = 0;
 APTR font = 0;
   struct Window *syswin = 0;
   struct RastPort *rp = 0;
@@ -407,7 +408,9 @@ long DoubleClickHook(Object *info reg(a2))
         //utf_text_info(jnode->curjson->u.object.values,'z');
         //utf_text_info(jnode->curjson->u.string.ptr, 'u');
         //printf("%s\n", jnode->curjson->u.string.ptr);
-        txt16 = convert8utf16(jnode->curjson->u.string.ptr, 'z');        
+        txt16 = convert8utf16(jnode->curjson->u.string.ptr, 'z');
+        if (txt16) 
+            DoMethod(ttbitmap_obj, MUIM_Draw, MADF_DRAWOBJECT);
         if (txt16)
         {
             printf("drawing...\n");
@@ -533,10 +536,7 @@ long BuildApplication (void)
     MUIA_Window_ID, 0x50525A4B,
     MUIA_UserData, OBJ_WINDOW,
     MUIA_Window_RootObject, MUI_NewObject (MUIC_Group,
-      MUIA_Group_Child, NewObject (TTBitmapClass->mcc_Class, NULL,
-       MUIA_Frame, MUIV_Frame_Text,
-       MUIA_Background, MUII_TextBack,
-     TAG_END),        
+      
       MUIA_Group_Child, MUI_NewObject (MUIC_Bitmap,
        MUIA_Background, MUII_TextBack,
 	   //MUIA_Bitmap_Bitmap, img_bitmap,
@@ -554,6 +554,10 @@ long BuildApplication (void)
 	   MUIA_ShortHelp, (unsigned long)"strefa mazania",	   
      TAG_END),    
            // ttf
+      MUIA_Group_Child, ttbitmap_obj = NewObject (TTBitmapClass->mcc_Class, NULL,
+       MUIA_Frame, MUIV_Frame_Text,
+       MUIA_Background, MUII_TextBack,
+     TAG_END),       
      MUIA_Group_Child, MUI_NewObject (MUIC_Group,
       MUIA_Group_Horiz, TRUE,
       MUIA_Group_Child, MUI_NewObject (MUIC_Text,
