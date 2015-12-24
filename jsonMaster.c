@@ -410,7 +410,9 @@ long DoubleClickHook(Object *info reg(a2))
         //printf("%s\n", jnode->curjson->u.string.ptr);
         txt16 = convert8utf16(jnode->curjson->u.string.ptr, 'z');
         if (txt16) 
-            DoMethod(ttbitmap_obj, MUIM_Draw, MADF_DRAWOBJECT);
+            //DoMethod(ttbitmap_obj, MUIM_Draw, MADF_DRAWOBJECT);
+            MUI_Redraw(ttbitmap_obj, MADF_DRAWOBJECT);
+        
         if (txt16)
         {
             printf("drawing...\n");
