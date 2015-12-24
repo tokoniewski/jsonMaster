@@ -34,24 +34,13 @@ long mAskMinMax (Class *cl, Object *obj, struct MUIP_AskMinMax *msg)
 long mDraw (Class *cl, Object *obj, struct MUIP_Draw *msg)
  {
   short big_radius;
-  long dx, dy;
+  long dx= 20;
+  long dy= 10;
   struct RastPort *rp = _rp(obj);
   struct TTBitmap *data = INST_DATA(cl,obj);
 
   DoSuperMethodA (cl, obj, (Msg)msg);
-  
-  /*
-  big_radius = sqrt32 (data->DeltaX * data->DeltaX + data->DeltaY * data->DeltaY);
-  if (big_radius != 0)
-   {
-    dx = (data->DeltaX * RADIUS) / big_radius;
-    dy = (data->DeltaY * RADIUS) / big_radius;
-   }
-  else
-   {
-    dx = 0;
-    dy = 0;
-   }
+ 
   SetAPen (rp, 1);
   Move (rp, _mleft(obj) + 20 + dx, _mtop(obj) + 20 + dy);
   Draw (rp, _mleft(obj) + 20 - dx, _mtop(obj) + 20 - dy);
@@ -61,8 +50,8 @@ long mDraw (Class *cl, Object *obj, struct MUIP_Draw *msg)
   WritePixel (rp, _mleft(obj) + 20 + dx, _mtop(obj) + 21 + dy);
   WritePixel (rp, _mleft(obj) + 19 + dx, _mtop(obj) + 20 + dy);
   WritePixel (rp, _mleft(obj) + 20 + dx, _mtop(obj) + 19 + dy);
-   * */
-  printf("drawing\n");
+ 
+  printf("MUI_drawing...\n");
   return 0;
  }
 
