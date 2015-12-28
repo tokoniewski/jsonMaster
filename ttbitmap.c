@@ -42,16 +42,16 @@ long mDraw (Class *cl, Object *obj, struct MUIP_Draw *msg)
   DoSuperMethodA (cl, obj, (Msg)msg);
  
   SetAPen (rp, 1);
-  Move (rp, _mleft(obj) + 20 + dx, _mtop(obj) + 20 + dy);
-  Draw (rp, _mleft(obj) + 20 - dx, _mtop(obj) + 20 - dy);
+  Move (rp, _mleft(obj) + 5, _mtop(obj) + 5);
+  Draw (rp, _mright(obj) - 5, _mbottom(obj) - 5);
+  Move (rp, _mleft(obj) + 5, _mbottom(obj) - 5);
+  Draw (rp, _mright(obj) - 5, _top(obj) + 5);
+  
   SetAPen (rp, 2);
-  WritePixel (rp, _mleft(obj) + 20 + dx, _mtop(obj) + 20 + dy);
-  //WritePixel (rp, _mleft(obj) + 21 + dx, _mtop(obj) + 20 + dy);
-  WritePixel (rp, _mleft(obj) + 20 + dx, _mtop(obj) + 21 + dy);
-  //WritePixel (rp, _mleft(obj) + 19 + dx, _mtop(obj) + 20 + dy);
-  WritePixel (rp, _mleft(obj) + 20 + dx, _mtop(obj) + 19 + dy);
+  WritePixel (rp, _mleft(obj) + 5, _mtop(obj) + 6);
+  WritePixel (rp, _mleft(obj) + 6, _mtop(obj) + 5);
  
-  printf("MUI_drawing...\n");
+  printf("mDraw...\n");
   return 0;
  }
 
