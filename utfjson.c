@@ -7,6 +7,8 @@
 
 #define JSON_UTF_MAGIC 0x7F
 
+char infochar[80];
+
 int utf_text_info(char *txt, char esc)
 {
     int bytelen=0;
@@ -100,5 +102,8 @@ int json_utf16hack(char *buffer, int length, char esc)
         buffer++;
         i++;
     }
-    printf("%d chars in json. Esc sequences: %d\n", length, z);
+    sprintf(infochar, "%d chars in json. Esc sequences: %d", length, z);
+    //return (int)infochar;
+    //SetAttrs (Info, MUIA_Text_Contents, infochar);
+    //printf("%d chars in json. Esc sequences: %d\n", length, z);
 }
