@@ -32,6 +32,7 @@ Object *ExpandAll, *FoldAll;
 Object *menu_about;
 Object *about_btn;
 Object *menu_load;
+Object *jsonload_popup;
 Object *menu_lastload;
 Object *menu_exit;
 Object *menu_json;
@@ -596,7 +597,7 @@ long BuildApplication (void)
        MUIA_FramePhantomHoriz, TRUE,
        MUIA_HorizWeight, 0,
       TAG_END),      
-      MUIA_Group_Child, MUI_NewObject (MUIC_Popasl,
+      MUIA_Group_Child, jsonload_popup = MUI_NewObject (MUIC_Popasl,
        MUIA_Popstring_String, String = MUI_NewObject (MUIC_String,
         MUIA_Frame, MUIV_Frame_String,
         MUIA_ObjectID, 0x01234568,         
@@ -750,6 +751,9 @@ void SetNotifications (void)
    
    DoMethod(menu_ttfutf_file, MUIM_Notify, MUIA_Menuitem_Trigger, MUIV_EveryTime,
         ttf_popup, 1, MUIM_Popstring_Open);     
+   
+   DoMethod(menu_load, MUIM_Notify, MUIA_Menuitem_Trigger, MUIV_EveryTime,
+        jsonload_popup, 1, MUIM_Popstring_Open);     
    
    DoMethod (InfoWin, MUIM_Notify, MUIA_Window_CloseRequest, MUIV_EveryTime,
         App, 2, MUIM_CallHook, &h_close_about );
