@@ -818,7 +818,7 @@ void MainLoop (void)
   return;
  }
  
-/* g��wna funkcja programu */
+/* glowna funkcja programu */
 //int main (void)
 int main(int argc, char *argv[])
  {
@@ -851,8 +851,12 @@ int main(int argc, char *argv[])
                     TT_CloseFont(font);
                 TT_DoneRastPort(rp);              
                }
+              else
+                  printf("Can't build app error\n");                  
               MUI_DeleteCustomClass (TTBitmapClass);
              }
+            else
+                printf("Can't create custom class error\n");                
             CloseLibrary(GfxBase);           
            }
           CloseLibrary(TTEngineBase);
