@@ -45,6 +45,7 @@ Object *menu_ttfutf_file;
 Object *ttf_string=0;
 Object *ttf_popup;
 Object *ttbitmap_obj = 0;
+Object *bitmap_obj = 0;
 APTR font = 0;
   struct Window *syswin = 0;
   struct RastPort *rp = 0;
@@ -369,13 +370,14 @@ long fold(Object *info)
   return 0;
  }
 
-int convert8utf16(char *utf8, char esc)
+int convert8utf16(char *utf8, char esc, int *lenchar16)
 {
     short *txt16 = 0;
     int txt16len = 0;
     int i = 0;
     
     txt16len = utf_text_info(utf8, esc);
+    *lenchar16 = txt16len;
     txt16 = (short *)malloc((txt16len+1)*sizeof(short));
     txt16[txt16len] = 0x0000;   //important!!!
     if (txt16)
@@ -393,6 +395,7 @@ int convert8utf16(char *utf8, char esc)
 long DoubleClickHook(Object *info reg(a2))
  {
   short *txt16 = 0;
+  int lenchar = 0;
   long poz=-1;  
   struct json_node_state *jnode=0;
   GetAttr (MUIA_List_Active, Listview, &poz);
@@ -410,10 +413,10 @@ long DoubleClickHook(Object *info reg(a2))
         //utf_text_info(jnode->curjson->u.object.values,'z');
         //utf_text_info(jnode->curjson->u.string.ptr, 'u');
         //printf("%s\n", jnode->curjson->u.string.ptr);
-        txt16 = convert8utf16(jnode->curjson->u.string.ptr, 'z');
+        txt16 = convert8utf16(jnode->curjson->u.string.ptr, 'z', &lenchar);
         if (txt16) 
             //DoMethod(ttbitmap_obj, MUIM_Draw, MADF_DRAWOBJECT);
-            MUI_Redraw(ttbitmap_obj, MADF_DRAWOBJECT);
+            MUI_Redraw(bitmap_obj, MADF_DRAWOBJECT);
         
         if (txt16)
         {
@@ -427,7 +430,7 @@ long DoubleClickHook(Object *info reg(a2))
                     TT_Encoding, TT_Encoding_UTF16_BE, 
                     TAG_END);
             //TT_Text(rp, "This is a text printed with TT_Text().", 38);
-            TT_Text(rp, txt16, 12);
+            TT_Text(rp, txt16, lenchar);
             free(txt16);           
         }
         return 0;
@@ -541,7 +544,7 @@ long BuildApplication (void)
     MUIA_UserData, OBJ_WINDOW,
     MUIA_Window_RootObject, MUI_NewObject (MUIC_Group,
       
-      MUIA_Group_Child, MUI_NewObject (MUIC_Bitmap,
+      MUIA_Group_Child, bitmap_obj = MUI_NewObject (MUIC_Bitmap,
        MUIA_Background, MUII_TextBack,
        MUIA_Frame, MUIV_Frame_Text,
        //MUIA_Bitmap_Bitmap, img_bitmap,
