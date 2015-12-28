@@ -106,7 +106,8 @@ void parse_insert(char *nazwa_pliku)
   jo=loadJson(nazwa_pliku);
   if (jo)
    {
-    SetAttrs (Info, MUIA_Text_Contents, "parsed ok ");	      
+    //SetAttrs (Info, MUIA_Text_Contents, "parsed ok ");	   
+      SetAttrs (Info, MUIA_Text_Contents, infochar);	
     //SetAttrs (App, MUIA_Application_Sleep, TRUE, TAG_END);  /* kursor "zegarkowy" */
     //SetAttrs (*listview, MUIA_List_Quiet, TRUE, TAG_END);    /* blokuj� od�wie�anie listy */
 	jsonlevel=0;
@@ -798,8 +799,8 @@ void MainLoop (void)
   SetAttrs (Win, MUIA_Window_Open, TRUE, TAG_END);
   GetAttr(MUIA_Window_Window, Win, &syswin);
   rp = syswin->RPort;  
-  printf("window: %x\n", syswin);
-  printf("rastport: %x\n", rp);
+  //printf("window: %x\n", syswin);
+  //printf("rastport: %x\n", rp);
   
   font = init_font("PROGDIR:AndaleMo.ttf");
   if (rp) TT_SetFont(rp, font);
@@ -838,13 +839,13 @@ int main(int argc, char *argv[])
               if (BuildApplication ())
                {
 		  //jsontest();
-		json_escape();
+		json_escape();  
 		if (argc>1)
-                        parse_insert(argv[1]);		  
-                SetNotifications ();
-                MainLoop ();
-                MUI_DisposeObject (App);
-          //if (Plik) Close (Plik);              /* zamknij ewentualnie otwarty plik */
+                        parse_insert(argv[1]);
+                  SetNotifications ();
+                  MainLoop ();
+                  MUI_DisposeObject (App);
+                //if (Plik) Close (Plik);              /* zamknij ewentualnie otwarty plik */
                 if (jo!=0)
                     json_value_free(jo);            
                 if(font)

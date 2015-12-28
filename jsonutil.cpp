@@ -49,7 +49,7 @@ json_value *jo=0;
     // read data as a block:
     is.read (buffer,length);
     
-    json_utf16hack(buffer,length, 'z');  
+    json_utf16hack(buffer,length, 'z');  //json uft16 magic preparser :)
     
     jo=json_parse(buffer, length);    
     //if (jo) rec_info(jo, 1);    
