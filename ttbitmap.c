@@ -48,9 +48,13 @@ long mDraw (Class *cl, Object *obj, struct MUIP_Draw *msg)
   Draw (rp, _mright(obj) - 5, _top(obj) + 5);
   
   SetAPen (rp, 2);
-  WritePixel (rp, _mleft(obj) + 5, _mtop(obj) + 6);
-  WritePixel (rp, _mleft(obj) + 6, _mtop(obj) + 5);
- 
+  //WritePixel (rp, (_mleft(obj) + _right(obj))/2, _mtop(obj) + 5);
+  //WritePixel (rp, _mleft(obj) + 5, (_mtop(obj) + _mbottom(obj))/2);
+  Move (rp, (_mleft(obj) + _mright(obj))/2, _mtop(obj) + 5);
+  Draw (rp, (_mleft(obj) + _mright(obj))/2, _bottom(obj) - 5);    
+  Move (rp, _mleft(obj)+ 5, (_mtop(obj) + _mbottom(obj))/2);
+  Draw (rp, _mright(obj) - 5, (_mtop(obj) + _mbottom(obj))/2);
+    
   printf("mDraw...\n");
   return 0;
  }
