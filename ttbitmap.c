@@ -49,9 +49,8 @@ long mDraw (Class *cl, Object *obj, struct MUIP_Draw *msg)
   data->cliphandle = MUI_AddClipping(mri, _left(obj)+5, _mtop(obj)+5, _mright(obj)-_mleft(obj)-5, _mbottom(obj)-_mtop(obj)-5 );
   
   GetAttr(MUIA_UserData, obj, (ULONG *)&srctxtptr);
-
   if (srctxtptr) printf(" User Data %s...\n", srctxtptr);
-  
+  srctxtptr=0;
   /*
     TT_SetAttrs(rp, TT_Window, _window(obj), TAG_END);
     SetAPen(rp, 2);
@@ -154,10 +153,10 @@ __saveds long TTBitmapDispatcher (Class *cl reg(a0), Object *obj reg(a2), Msg ms
   switch (msg->MethodID)
    {
     case OM_SET:
-        DoSuperMethodA (cl, obj, (Msg)msg);
+        DoSuperMethodA (cl, obj, msg);
         return printf("set...\n");
     case OM_GET:
-        DoSuperMethodA (cl, obj, (Msg)msg);
+        DoSuperMethodA (cl, obj, msg);
         return printf("get...\n");
     case MUIM_Setup:              return (mSetup (cl, obj, msg));
     case MUIM_Cleanup:            return (mCleanup (cl, obj, msg));

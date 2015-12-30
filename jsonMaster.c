@@ -414,6 +414,7 @@ long DoubleClickHook(Object *info reg(a2))
         printf("String UTF8-16 ...\n");
         SetAttrs(ttbitmap_obj, MUIA_UserData, jnode->curjson->u.string.ptr, TAG_END);
         SetAttrs(ttbitmap_obj, MUIA_Background, MUII_SHADOW, TAG_END);
+        MUI_Redraw(ttbitmap_obj, MADF_DRAWUPDATE);
         //utf_text_info(jnode->curjson->u.object.values,'z');
         //utf_text_info(jnode->curjson->u.string.ptr, 'u');
         //printf("%s\n", jnode->curjson->u.string.ptr);

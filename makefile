@@ -14,7 +14,7 @@ p1: $(NAZWA).o jsonutil.o json.o utfjson.o ttbitmap.o
 	
 p2: p1
 	cp $(NAZWA).exe /cygdrive/p/$(NAZWA)2
-#	cp $(NAZWA).exe /cygdrive/d/WinUAE/AmigaSYS/Work/mapnik/a1.out		
+	cp $(NAZWA).exe /cygdrive/d/WinUAE/AmigaSYS/Work/mapnik/$(NAZWA)2
 	
 jsonutil.o: jsonutil.cpp jsonutil.h	
 	$(CPP) jsonutil.cpp -c -o jsonutil.o    
