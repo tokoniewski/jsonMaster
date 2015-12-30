@@ -16,6 +16,10 @@ extern "C" {
     
 struct TTBitmap
  {
+  short **txt16;
+  int *lenchar;
+  struct Window *syswin;
+  APTR  cliphandle;  
   short DeltaX;
   short DeltaY;
   //struct MUI_EventHandlerNode EHNode;

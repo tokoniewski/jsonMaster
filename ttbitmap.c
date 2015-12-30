@@ -5,6 +5,8 @@
 //#include <proto/graphics.h>
 //#include <proto/dos.h>
 //#include <proto/alib.h>
+#include <proto/ttengine.h>
+#include <libraries/ttengine.h>
 
 #define reg(a) __asm(#a)
 
@@ -36,11 +38,47 @@ long mDraw (Class *cl, Object *obj, struct MUIP_Draw *msg)
   short big_radius;
   long dx= 20;
   long dy= 10;
+  char *srctxtptr="dup2";
   struct RastPort *rp = _rp(obj);
   struct TTBitmap *data = INST_DATA(cl,obj);
+  struct MUI_RenderInfo *mri = muiRenderInfo(obj);
 
   DoSuperMethodA (cl, obj, (Msg)msg);
- 
+  
+  data->cliphandle = 0;
+  data->cliphandle = MUI_AddClipping(mri, _left(obj)+5, _mtop(obj)+5, _mright(obj)-_mleft(obj)-5, _mbottom(obj)-_mtop(obj)-5 );
+  
+  GetAttr(MUIA_UserData, obj, (ULONG *)&srctxtptr);
+
+  if (srctxtptr) printf(" User Data %s...\n", srctxtptr);
+  
+  /*
+    TT_SetAttrs(rp, TT_Window, _window(obj), TAG_END);
+    SetAPen(rp, 2);
+    SetDrMd(rp, JAM1);
+    Move(rp, 20, 40);
+    TT_SetAttrs(rp,
+            TT_Antialias, TT_Antialias_Off, 
+            TT_Encoding, TT_Encoding_UTF16_BE, 
+            TAG_END);
+    //TT_Text(rp, "This is a text printed with TT_Text().", 38);
+    TT_Text(rp, data->txt16, data->lenchar);
+  */
+  SetAPen (rp, 1);
+  Move (rp, _mleft(obj) , _mtop(obj) );
+  Draw (rp, _mright(obj) , _mbottom(obj) );
+  Move (rp, _mleft(obj) , _mbottom(obj) );
+  Draw (rp, _mright(obj) , _top(obj) );
+  
+  SetAPen (rp, 2);
+  Move (rp, (_mleft(obj) + _mright(obj))/2, _mtop(obj) );
+  Draw (rp, (_mleft(obj) + _mright(obj))/2, _mbottom(obj));    
+  Draw (rp, _mleft(obj) , (_mtop(obj) + _mbottom(obj))/2);
+  Draw (rp, _mright(obj), (_mtop(obj) + _mbottom(obj))/2); 
+  
+  
+  
+  /*
   SetAPen (rp, 1);
   Move (rp, _mleft(obj) + 5, _mtop(obj) + 5);
   Draw (rp, _mright(obj) - 5, _mbottom(obj) - 5);
@@ -54,7 +92,9 @@ long mDraw (Class *cl, Object *obj, struct MUIP_Draw *msg)
   Draw (rp, (_mleft(obj) + _mright(obj))/2, _bottom(obj) - 5);    
   Move (rp, _mleft(obj)+ 5, (_mtop(obj) + _mbottom(obj))/2);
   Draw (rp, _mright(obj) - 5, (_mtop(obj) + _mbottom(obj))/2);
-    
+    */  
+  //if (data->cliphandle)      
+      MUI_RemoveClipping(mri, data->cliphandle);
   printf("mDraw...\n");
   return 0;
  }
@@ -64,6 +104,7 @@ long mDraw (Class *cl, Object *obj, struct MUIP_Draw *msg)
 long mSetup (Class *cl, Object *obj, Msg msg)
  {
   struct TTBitmap *data = INST_DATA(cl,obj);
+  //struct MUI_RenderInfo *mri = muiRenderInfo(obj);
 
   if (DoSuperMethodA (cl, obj, msg))
    {
@@ -85,12 +126,11 @@ long mSetup (Class *cl, Object *obj, Msg msg)
 long mCleanup (Class *cl, Object *obj, Msg msg)
  {
   struct TTBitmap *data = INST_DATA(cl,obj);
-
+  //struct MUI_RenderInfo *mri = muiRenderInfo(obj);
   //DoMethod (_win(obj), MUIM_Window_RemEventHandler, &data->EHNode);
  }
 
 /* metoda HandleEvent */
-
 long mHandleEvent (Class *cl, Object *obj, struct MUIP_HandleEvent *msg)
  {
   struct TTBitmap *data = INST_DATA(cl,obj);
@@ -113,6 +153,12 @@ __saveds long TTBitmapDispatcher (Class *cl reg(a0), Object *obj reg(a2), Msg ms
  {
   switch (msg->MethodID)
    {
+    case OM_SET:
+        DoSuperMethodA (cl, obj, (Msg)msg);
+        return printf("set...\n");
+    case OM_GET:
+        DoSuperMethodA (cl, obj, (Msg)msg);
+        return printf("get...\n");
     case MUIM_Setup:              return (mSetup (cl, obj, msg));
     case MUIM_Cleanup:            return (mCleanup (cl, obj, msg));
     case MUIM_AskMinMax:          return (mAskMinMax (cl, obj, (struct MUIP_AskMinMax*)msg));

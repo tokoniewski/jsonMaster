@@ -391,11 +391,13 @@ int convert8utf16(char *utf8, char esc, int *lenchar16)
     else
         return 0;
 }
-
-long DoubleClickHook(Object *info reg(a2))
- {
   short *txt16 = 0;
   int lenchar = 0;
+  
+long DoubleClickHook(Object *info reg(a2))
+ {
+  //short *txt16 = 0;
+  //int lenchar = 0;
   long poz=-1;  
   struct json_node_state *jnode=0;
   GetAttr (MUIA_List_Active, Listview, &poz);
@@ -410,6 +412,8 @@ long DoubleClickHook(Object *info reg(a2))
   if (jnode->curjson->type==json_string)
   {
         printf("String UTF8-16 ...\n");
+        SetAttrs(ttbitmap_obj, MUIA_UserData, jnode->curjson->u.string.ptr, TAG_END);
+        SetAttrs(ttbitmap_obj, MUIA_Background, MUII_SHADOW, TAG_END);
         //utf_text_info(jnode->curjson->u.object.values,'z');
         //utf_text_info(jnode->curjson->u.string.ptr, 'u');
         //printf("%s\n", jnode->curjson->u.string.ptr);
@@ -565,6 +569,7 @@ long BuildApplication (void)
       MUIA_Group_Child, ttbitmap_obj = NewObject (TTBitmapClass->mcc_Class, NULL,
        MUIA_Frame, MUIV_Frame_Text,
        MUIA_Background, MUII_TextBack,
+       MUIA_UserData, "dupa",
      TAG_END),       
      MUIA_Group_Child, MUI_NewObject (MUIC_Group,
       MUIA_Group_Horiz, TRUE,
