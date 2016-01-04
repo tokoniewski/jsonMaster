@@ -2,11 +2,12 @@
 #include <proto/exec.h>
 //#include <proto/intuition.h>
 #include <libraries/gadtools.h>
-//#include <proto/muimaster.h>
-#include <libraries/mui.h>
+#include <proto/muimaster.h>
+#include <libraries/mui.h> 
 //#include <proto/api_mui.h>
 #include <proto/ttengine.h>
 #include <libraries/ttengine.h>
+#include <libraries/asl.h>
 
 #include "json.h"
 #include "jsonutil.h"
@@ -419,9 +420,9 @@ long DoubleClickHook(Object *info reg(a2))
         //utf_text_info(jnode->curjson->u.string.ptr, 'u');
         //printf("%s\n", jnode->curjson->u.string.ptr);
         txt16 = convert8utf16(jnode->curjson->u.string.ptr, 'z', &lenchar);
-        if (txt16) 
+        //if (txt16) 
             //DoMethod(ttbitmap_obj, MUIM_Draw, MADF_DRAWOBJECT);
-            MUI_Redraw(bitmap_obj, MADF_DRAWOBJECT);
+            //MUI_Redraw(bitmap_obj, MADF_DRAWOBJECT);
         
         if (txt16)
         {
@@ -548,7 +549,7 @@ long BuildApplication (void)
     MUIA_Window_ID, 0x50525A4B,
     MUIA_UserData, OBJ_WINDOW,
     MUIA_Window_RootObject, MUI_NewObject (MUIC_Group,
-      
+      /*
       MUIA_Group_Child, bitmap_obj = MUI_NewObject (MUIC_Bitmap,
        MUIA_Background, MUII_TextBack,
        MUIA_Frame, MUIV_Frame_Text,
@@ -565,13 +566,15 @@ long BuildApplication (void)
        //MUIA_InnerRight, 0,
 	   //MUIA_InputMode, MUIV_InputMode_RelVerify,
 	   MUIA_ShortHelp, (unsigned long)"strefa mazania",	   
-     TAG_END),    
+     TAG_END), */   
            // ttf
+    
       MUIA_Group_Child, ttbitmap_obj = NewObject (TTBitmapClass->mcc_Class, NULL,
        MUIA_Frame, MUIV_Frame_Text,
        MUIA_Background, MUII_TextBack,
        MUIA_UserData, "dupa",
      TAG_END),       
+     
      MUIA_Group_Child, MUI_NewObject (MUIC_Group,
       MUIA_Group_Horiz, TRUE,
       MUIA_Group_Child, MUI_NewObject (MUIC_Text,
@@ -608,6 +611,7 @@ long BuildApplication (void)
        MUIA_HorizWeight, 0,
       TAG_END),      
       MUIA_Group_Child, jsonload_popup = MUI_NewObject (MUIC_Popasl,
+      MUIA_Popasl_Type, ASL_FileRequest,          
        MUIA_Popstring_String, String = MUI_NewObject (MUIC_String,
         MUIA_Frame, MUIV_Frame_String,
         MUIA_ObjectID, 0x01234568,         

@@ -22,6 +22,7 @@ struct TTBitmap
   APTR  cliphandle;  
   short DeltaX;
   short DeltaY;
+  int test;
   //struct MUI_EventHandlerNode EHNode;
  };
 
