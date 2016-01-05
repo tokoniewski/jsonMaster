@@ -9,6 +9,7 @@
 #include <libraries/ttengine.h>
 #include <libraries/asl.h>
 
+#include "jsonMaster.h"
 #include "json.h"
 #include "jsonutil.h"
 #include "utfjson.h"
@@ -28,21 +29,11 @@ struct json_node_state
 };
 																
 Object *Win, *App, *Listview, *String, *Info;
-Object *Expand, *Fold;
-Object *ExpandAll, *FoldAll;
-Object *menu_about;
 Object *about_btn;
-Object *menu_load;
 Object *jsonload_popup;
 Object *menu_lastload;
-Object *menu_exit;
-Object *menu_json;
-Object *menu_json_fold;
-Object *menu_json_exall;
-Object *menu_json_exlevel;
 Object *InfoWin;
-Object *menu_mui_prefs;
-Object *menu_ttfutf_file;
+//Object *menu_ttfutf_file;
 Object *ttf_string=0;
 Object *ttf_popup;
 Object *ttbitmap_obj = 0;
@@ -449,7 +440,7 @@ long DoubleClickHook(Object *info reg(a2))
 	return 0;	
  }
  
-long close_about(Object* obj, struct MsgData* msg)
+long close_about(Object* obj,  struct MsgData* msg)
 {
         SetAttrs (InfoWin, MUIA_Window_Open, FALSE, TAG_END);
 }
@@ -467,8 +458,34 @@ struct Hook h_close_about = {NULL, NULL, (HOOKFUNC)close_about, NULL, NULL};
 
 // ==================================================
 
-/* Fun GUI */
+Object *create_menu(char *label, char *control, LONG objid)
+{
+        Object *obj;
+        obj = MUI_NewObject(MUIC_Menuitem,
+                MUIA_Menuitem_Title, (ULONG)label,
+                MUIA_Menuitem_Shortcut, control,
+                MUIA_UserData, objid,                 
+                TAG_END);
+        return obj;
+}
 
+Object *create_button(char *label, char *control, LONG objid)
+{
+        Object *obj;
+        obj = MUI_NewObject (MUIC_Text,       /* przycisk */
+                MUIA_Frame, MUIV_Frame_Button,
+                MUIA_Background, MUII_ButtonBack,
+                MUIA_Font, MUIV_Font_Button,
+                MUIA_Text_Contents, (ULONG)label,
+                MUIA_Text_HiChar, control,
+                MUIA_ControlChar, control,
+                MUIA_InputMode, MUIV_InputMode_RelVerify,
+                MUIA_CycleChain, TRUE,
+                MUIA_UserData, objid,
+        TAG_END);
+        return obj;
+}        
+/* Fun GUI */
 long BuildApplication (void)
 {
     char copyright = 0xA9; 
@@ -485,39 +502,21 @@ long BuildApplication (void)
    MUIA_Application_Menustrip, MUI_NewObject(MUIC_Menustrip,
 		MUIA_Group_Child, MUI_NewObject(MUIC_Menu,                
 			MUIA_Menu_Title, (long)"File",
-			MUIA_Group_Child, (menu_load = MUI_NewObject(MUIC_Menuitem,
-				MUIA_Menuitem_Title, (long)"Open file",
-				MUIA_Menuitem_Shortcut, (long)"O", 
-			TAG_END)),							                        
+			MUIA_Group_Child, create_menu("Open file", "O", JM_OBJ_MENU_OPENFILE),							                        
 			MUIA_Group_Child, MUI_NewObject(MUIC_Menuitem,
 				MUIA_Menuitem_Title, NM_BARLABEL,
 			TAG_END),                        
-			MUIA_Group_Child, (menu_about = MUI_NewObject(MUIC_Menuitem,
-				MUIA_Menuitem_Title, (long)"About",
-				MUIA_Menuitem_Shortcut, (long)"?", 
-			TAG_END)),							
+			MUIA_Group_Child, create_menu("About", "?", JM_OBJ_MENU_ABOUT),
 			MUIA_Group_Child, MUI_NewObject(MUIC_Menuitem,
 				MUIA_Menuitem_Title, NM_BARLABEL,
 			TAG_END),                        
-			MUIA_Group_Child, (menu_exit = MUI_NewObject(MUIC_Menuitem,
-				MUIA_Menuitem_Title, (long)"Exit",
-				MUIA_Menuitem_Shortcut, (long)"Q", 
-			TAG_END)),                        
+			MUIA_Group_Child, create_menu("Exit", "Q", JM_OBJ_MENU_EXIT),
 		TAG_END),
 		MUIA_Group_Child, MUI_NewObject(MUIC_Menu,
 			MUIA_Menu_Title, (long)"Json",
-			MUIA_Group_Child, (menu_json_exall = MUI_NewObject(MUIC_Menuitem,
-				MUIA_Menuitem_Title, (long)"Expand all",
-				MUIA_Menuitem_Shortcut, (long)"A",                                 
-			TAG_END)),
-			MUIA_Group_Child, (menu_json_exlevel = MUI_NewObject(MUIC_Menuitem,
-				MUIA_Menuitem_Title, (long)"Expand level",
-				MUIA_Menuitem_Shortcut, (long)"E",                                 
-			TAG_END)),
-			MUIA_Group_Child, (menu_json_fold = MUI_NewObject(MUIC_Menuitem,
-				MUIA_Menuitem_Title, (long)"Fold",
-				MUIA_Menuitem_Shortcut, (long)"F",                                 
-			TAG_END)),
+			MUIA_Group_Child, create_menu("Expand all","A", JM_OBJ_MENU_EXALL), 
+			MUIA_Group_Child, create_menu("Expand level", "E", JM_OBJ_MENU_EXLEV),
+			MUIA_Group_Child, create_menu("Fold", "F", JM_OBJ_MENU_FOLD),
 		TAG_END),                        
 		MUIA_Group_Child, MUI_NewObject(MUIC_Menu,
 			MUIA_Menu_Title, (long)"Prefs",
@@ -530,17 +529,14 @@ long BuildApplication (void)
                                 MUIA_Menuitem_Toggle, TRUE,
                                 MUIA_ObjectID, 0x01234569,                                  
 			TAG_END)),                        
-			MUIA_Group_Child, (menu_mui_prefs = MUI_NewObject(MUIC_Menuitem,
+			MUIA_Group_Child, MUI_NewObject(MUIC_Menuitem,
 				MUIA_Menuitem_Title, (long)"About MUI ",
-			TAG_END)),
+			TAG_END),
 		TAG_END),
                 
 		MUIA_Group_Child, MUI_NewObject(MUIC_Menu,
 			MUIA_Menu_Title, (long)"TTF font",
-			MUIA_Group_Child, (menu_ttfutf_file = MUI_NewObject(MUIC_Menuitem,
-				MUIA_Menuitem_Title, (long)"Select UTF-16 .ttf font",
-                                MUIA_Menuitem_Shortcut, (long)"T",
-			TAG_END)),                        
+			MUIA_Group_Child, create_menu("Select UTF-16 .ttf font", "T", JM_OBJ_MENU_SELTTF),                      
 		TAG_END),
                 
 	TAG_END),
@@ -629,45 +625,12 @@ long BuildApplication (void)
      TAG_END),
         // json file select ^^^^^^
 	 MUIA_Group_Child, MUI_NewObject (MUIC_Group,       /* grupa z przyciskami */
-      MUIA_Group_Horiz, TRUE,
-      MUIA_Group_Child, Expand = MUI_NewObject (MUIC_Text,       /* przycisk lewy */
-       MUIA_Frame, MUIV_Frame_Button,
-       MUIA_Background, MUII_ButtonBack,
-       MUIA_Font, MUIV_Font_Button,
-       MUIA_Text_Contents, (long)"\33cExpand",
-       MUIA_Text_HiChar, 'e',
-       MUIA_ControlChar, 'e',
-       MUIA_InputMode, MUIV_InputMode_RelVerify,
-       MUIA_CycleChain, TRUE,
-      TAG_END),
-      MUIA_Group_Child, Fold = MUI_NewObject (MUIC_Text,       /* przycisk prawy */
-       MUIA_Frame, MUIV_Frame_Button,
-       MUIA_Background, MUII_ButtonBack,
-       MUIA_Font, MUIV_Font_Button,
-       MUIA_Text_Contents, (long)"\33cFold",
-       MUIA_Text_HiChar, 'f',
-       MUIA_ControlChar, 'f',
-	   MUIA_InputMode, MUIV_InputMode_RelVerify,	   
-       //MUIA_InputMode, MUIV_InputMode_Toggle,
-       MUIA_CycleChain, TRUE,
-      TAG_END),
-      MUIA_Group_Child, ExpandAll = MUI_NewObject (MUIC_Text,       /* przycisk lewy */
-       MUIA_Frame, MUIV_Frame_Button,
-       MUIA_Background, MUII_ButtonBack,
-       MUIA_Font, MUIV_Font_Button,
-       MUIA_Text_Contents, (long)"\33cExpand All",
-       MUIA_InputMode, MUIV_InputMode_RelVerify,
-       MUIA_CycleChain, TRUE,
-      TAG_END),
-      MUIA_Group_Child, FoldAll = MUI_NewObject (MUIC_Text,       /* przycisk prawy */
-       MUIA_Frame, MUIV_Frame_Button,
-       MUIA_Background, MUII_ButtonBack,
-       MUIA_Font, MUIV_Font_Button,
-       MUIA_Text_Contents, (long)"\33cFold All",
-	   MUIA_InputMode, MUIV_InputMode_RelVerify,	   
-       MUIA_CycleChain, TRUE,
-      TAG_END),
-	  TAG_END),
+                MUIA_Group_Horiz, TRUE,
+                MUIA_Group_Child, create_button("\33cExpand", 'e', JM_OBJ_BUTTON_EXPAND),
+                MUIA_Group_Child, create_button("\33cFold",'f', JM_OBJ_BUTTON_FOLD),
+                MUIA_Group_Child, create_button("\33cExpand All", 0, JM_OBJ_BUTTON_EXALL),
+                MUIA_Group_Child, create_button("\33cFold All", 0, JM_OBJ_BUTTON_FOLDALL),
+         TAG_END),
      MUIA_Group_Child, Listview = MUI_NewObject (MUIC_Listview,
       MUIA_Listview_Input, TRUE,                        /* lista tylko do odczytu - bez kursora */
       MUIA_Listview_List, MUI_NewObject (MUIC_List,
@@ -693,10 +656,10 @@ long BuildApplication (void)
   TAG_END);
 
   win_title[11] = copyright;
-  screen_title[0] = copyright;          
+  screen_title[0] = copyright;
   
-       InfoWin = 0;
-    InfoWin = MUI_NewObject (MUIC_Window,
+  InfoWin = 0;
+  InfoWin = MUI_NewObject (MUIC_Window,
         MUIA_Window_Title, (long)"jsonMaster Information",
         MUIA_Window_ID, 0x50525A4C,
         MUIA_UserData, OBJ_WINDOW+1,
@@ -725,16 +688,16 @@ long BuildApplication (void)
                         //Child, Label1("\33c " ),                         
                         //Child, Label1("\33c krashan, kaczus, stefkos " ),                        
                         //Child, Label1("\33c tygrys, widelec"),                                               
-                MUIA_Group_Child, about_btn = MUI_NewObject (MUIC_Text,
-                        MUIA_Frame, MUIV_Frame_Button,
-                        MUIA_Background, MUII_ButtonBack,
-                        MUIA_Font, MUIV_Font_Button,                        
-                        MUIA_Text_Contents, (long)"\33cOK",
-                        MUIA_InputMode, MUIV_InputMode_RelVerify,
-                        MUIA_CycleChain, TRUE,   
-                TAG_END),                        
+                        MUIA_Group_Child, about_btn = MUI_NewObject (MUIC_Text,
+                                MUIA_Frame, MUIV_Frame_Button,
+                                MUIA_Background, MUII_ButtonBack,
+                                MUIA_Font, MUIV_Font_Button,                        
+                                MUIA_Text_Contents, (long)"\33cOK",
+                                MUIA_InputMode, MUIV_InputMode_RelVerify,
+                                MUIA_CycleChain, TRUE,   
+                        TAG_END),                        
                 TAG_END),                  
-        TAG_END),
+          TAG_END),
     TAG_END);
     
     if (App)
@@ -757,16 +720,16 @@ void SetNotifications (void)
         MUIV_EveryTime, App, 2, MUIM_Application_ReturnID,
         MUIV_Application_ReturnID_Quit);
   
-   DoMethod(menu_exit, MUIM_Notify, MUIA_Menuitem_Trigger, MUIV_EveryTime,
+   DoMethod(findobj(JM_OBJ_MENU_EXIT, App), MUIM_Notify, MUIA_Menuitem_Trigger, MUIV_EveryTime,
         App, 2, MUIM_Application_ReturnID, MUIV_Application_ReturnID_Quit);
         /* about window */
-   DoMethod(menu_about, MUIM_Notify, MUIA_Menuitem_Trigger, MUIV_EveryTime,
+   DoMethod(findobj(JM_OBJ_MENU_ABOUT, App), MUIM_Notify, MUIA_Menuitem_Trigger, MUIV_EveryTime,
         InfoWin, 3, MUIM_Set, MUIA_Window_Open, TRUE);  
    
-   DoMethod(menu_ttfutf_file, MUIM_Notify, MUIA_Menuitem_Trigger, MUIV_EveryTime,
+   DoMethod(findobj(JM_OBJ_MENU_SELTTF, App), MUIM_Notify, MUIA_Menuitem_Trigger, MUIV_EveryTime,
         ttf_popup, 1, MUIM_Popstring_Open);     
    
-   DoMethod(menu_load, MUIM_Notify, MUIA_Menuitem_Trigger, MUIV_EveryTime,
+   DoMethod(findobj(JM_OBJ_MENU_OPENFILE, App), MUIM_Notify, MUIA_Menuitem_Trigger, MUIV_EveryTime,
         jsonload_popup, 1, MUIM_Popstring_Open);     
    
    DoMethod (InfoWin, MUIM_Notify, MUIA_Window_CloseRequest, MUIV_EveryTime,
@@ -784,16 +747,16 @@ void SetNotifications (void)
   DoMethod (String, MUIM_Notify, MUIA_String_Acknowledge, MUIV_EveryTime, MUIV_Notify_Self,
         3, MUIM_CallHook, &h_CzytajPlik, Listview);
 
-  DoMethod (Expand, MUIM_Notify, MUIA_Pressed,
+  DoMethod (findobj(JM_OBJ_BUTTON_EXPAND, Win), MUIM_Notify, MUIA_Pressed,
         FALSE, Info, 2, MUIM_CallHook, &h_ExpandHook);
   
-  DoMethod(menu_json_exlevel, MUIM_Notify, MUIA_Menuitem_Trigger, MUIV_EveryTime,
+  DoMethod(findobj(JM_OBJ_MENU_EXLEV, App), MUIM_Notify, MUIA_Menuitem_Trigger, MUIV_EveryTime,
         Info, 2, MUIM_CallHook, &h_ExpandHook);
      
-  DoMethod (Fold, MUIM_Notify, MUIA_Pressed,
+  DoMethod (findobj(JM_OBJ_BUTTON_FOLD, Win), MUIM_Notify, MUIA_Pressed,
         FALSE, Info, 2, MUIM_CallHook, &h_FoldHook);
   
-  DoMethod(menu_json_fold, MUIM_Notify, MUIA_Menuitem_Trigger, MUIV_EveryTime,
+  DoMethod(findobj(JM_OBJ_MENU_FOLD, App), MUIM_Notify, MUIA_Menuitem_Trigger, MUIV_EveryTime,
         Info, 2, MUIM_CallHook, &h_FoldHook);  
    
   DoMethod (Listview, MUIM_Notify, MUIA_Listview_DoubleClick,
