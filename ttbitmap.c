@@ -46,8 +46,8 @@ long mDraw (Class *cl, Object *obj, struct MUIP_Draw *msg)
   
         DoSuperMethodA (cl, obj, (Msg)msg);
   
-  //data->cliphandle = 0;
-  //data->cliphandle = MUI_AddClipping(mri, _left(obj)+5, _mtop(obj)+5, _mright(obj)-_mleft(obj)-5, _mbottom(obj)-_mtop(obj)-5 );
+  data->cliphandle = 0;
+  data->cliphandle = MUI_AddClipping(mri, _left(obj)+5, _mtop(obj)+5, _mright(obj)-_mleft(obj)-5, _mbottom(obj)-_mtop(obj)-5 );
   
   GetAttr(MUIA_UserData, obj, (ULONG *)&srctxtptr);
   data->test=srctxtptr;
@@ -83,7 +83,7 @@ long mDraw (Class *cl, Object *obj, struct MUIP_Draw *msg)
   //WritePixel (rp, _mleft(obj) + 5, (_mtop(obj) + _mbottom(obj))/2);
     */  
   //if (data->cliphandle!=0)      
-      //MUI_RemoveClipping(mri, data->cliphandle);
+      MUI_RemoveClipping(mri, data->cliphandle);
   //printf("mDraw...\n");
   return 0;
  }
@@ -144,7 +144,7 @@ __saveds long TTBitmapDispatcher (Class *cl reg(a0), Object *obj reg(a2), Msg ms
    {
     case OM_SET:
         DoSuperMethodA (cl, obj, msg);        
-        return printf("set... %s\n", ((struct TTBitmap *)INST_DATA(cl,obj))->test );
+        return; // printf("set... %s\n", ((struct TTBitmap *)INST_DATA(cl,obj))->test );
     case OM_GET:
         DoSuperMethodA (cl, obj, msg);
         return; // printf("get...\n");
