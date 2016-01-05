@@ -30,7 +30,14 @@ extern "C" {
 #define JM_OBJ_BUTTON_FOLD      0x601
 #define JM_OBJ_BUTTON_EXALL     0x602
 #define JM_OBJ_BUTTON_FOLDALL   0x603
-        
+
+#define   JM_App_Author         "Tomasz Okoniewski - virago/BlaBla"
+#define   JM_App_Base           "JSONMASTER"
+#define   JM_App_Copyright      "c 2014-2016 by BlaBla Corp."
+#define   JM_App_Descr          "simple json files viewer"
+#define   JM_App_Title          "jsonMaster"
+#define   JM_App_Version        "$VER: jsonMaster 0.2 (5.01.2016) BLABLA PRODUCT"
+    
 extern Object *App, *Win;
 
 #ifdef	__cplusplus
