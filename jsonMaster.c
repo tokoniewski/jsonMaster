@@ -493,12 +493,19 @@ long BuildApplication (void)
     char *screen_title = 0;
     
   App = MUI_NewObject (MUIC_Application,
+   MUIA_Application_Author, (long)JM_App_Author,
+   MUIA_Application_Base, (long)JM_App_Base,
+   MUIA_Application_Copyright, (long)JM_App_Copyright,
+   MUIA_Application_Description, (long)JM_App_Descr,
+   MUIA_Application_Title, (long)JM_App_Title,
+   MUIA_Application_Version, (long)JM_App_Version,
+   /*
    MUIA_Application_Author, (long)"Tomasz Okoniewski - virago/BlaBla)",
    MUIA_Application_Base, (long)"JSONMASTER",
    MUIA_Application_Copyright, screen_title=(long)"c 2014-2015 by BlaBla Corp.",
    MUIA_Application_Description, (long)"simple json files viewer",
    MUIA_Application_Title, (long)"jsonMaster",
-   MUIA_Application_Version, (long)"$VER: jsonMaster 1.0 (21.12.2015) BLABLA PRODUCT",
+   MUIA_Application_Version, (long)"$VER: jsonMaster 1.0 (21.12.2015) BLABLA PRODUCT",*/
    MUIA_Application_Menustrip, MUI_NewObject(MUIC_Menustrip,
 		MUIA_Group_Child, MUI_NewObject(MUIC_Menu,                
 			MUIA_Menu_Title, (long)"File",
@@ -541,7 +548,7 @@ long BuildApplication (void)
                 
 	TAG_END),
    MUIA_Application_Window, Win = MUI_NewObject (MUIC_Window,
-    MUIA_Window_Title, win_title = (long)"jsonMaster c 2014-2015 by BlaBla Corp.",
+    MUIA_Window_Title, win_title = (long)"jsonMaster c 2014-2016 by BlaBla Corp.",
     MUIA_Window_ID, 0x50525A4B,
     MUIA_UserData, OBJ_WINDOW,
     MUIA_Window_RootObject, MUI_NewObject (MUIC_Group,
@@ -563,8 +570,7 @@ long BuildApplication (void)
 	   //MUIA_InputMode, MUIV_InputMode_RelVerify,
 	   MUIA_ShortHelp, (unsigned long)"strefa mazania",	   
      TAG_END), */   
-           // ttf
-    
+           // ttf    
       MUIA_Group_Child, ttbitmap_obj = NewObject (TTBitmapClass->mcc_Class, NULL,
        MUIA_Frame, MUIV_Frame_Text,
        MUIA_Background, MUII_TextBack,
@@ -672,8 +678,8 @@ long BuildApplication (void)
                         MUIA_Group_Child, MUI_NewObject (MUIC_Text,
                                 MUIA_Text_Contents, (long)"\33c\33b json Master", 
                         TAG_END),                                                
-                        Child, Label1("\33c Version 0.1f" ),                        
-                        Child, Label1("\33c copyrights 2014-2015 BlaBla "),
+                        Child, Label1("\33c Version 0.2" ),                        
+                        Child, Label1("\33c copyrights 2014-2016 BlaBla "),
                         Child, Label1("\33c " ),                         
                         Child, Label1("\33c Tomasz 'virago' Okoniewski " ),
                         Child, Label1("\33c virago77@interia.pl" ),                        
