@@ -29,7 +29,7 @@ utfjson.o: utfjson.c utfjson.h
 ttbitmap.o: ttbitmap.c ttbitmap.h
 	$(CC) ttbitmap.c -c -o ttbitmap.o
 
-$(NAZWA).o: $(NAZWA).c
+$(NAZWA).o: $(NAZWA).c $(NAZWA).h
 	$(CC) $(NAZWA).c -noixemul -c -o $(NAZWA).o
 
 
