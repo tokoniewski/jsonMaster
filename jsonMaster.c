@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <proto/exec.h>
+#include <workbench/workbench.h>
 //#include <proto/intuition.h>
 #include <libraries/gadtools.h>
 #include <proto/muimaster.h>
@@ -383,6 +384,16 @@ int convert8utf16(char *utf8, char esc, int *lenchar16)
     else
         return 0;
 }
+
+long appMsgHook(Object *info reg(a2), struct AppMessage **appmsg reg(a1))
+{
+    struct AppMessage *apm = *appmsg;
+    //GetAttr(MUIA_AppMessage, info, apm);
+    //if (apm)
+        printf(" app message is here.. %d:%d %d %s\n", apm, apm->am_NumArgs, apm->am_ArgList[0].wa_Lock, apm->am_ArgList[0].wa_Name);
+    apm->am_ArgList[0].wa_Lock;    
+        
+}
   short *txt16 = 0;
   int lenchar = 0;
   
@@ -440,7 +451,7 @@ long DoubleClickHook(Object *info reg(a2))
 	return 0;	
  }
  
-long close_about(Object* obj,  struct MsgData* msg)
+long close_about(Object* obj,  Msg msg)
 {
         SetAttrs (InfoWin, MUIA_Window_Open, FALSE, TAG_END);
 }
@@ -455,6 +466,7 @@ struct Hook h_LiniaDisplayer = {NULL, NULL, (HOOKFUNC)LiniaDisplayer, NULL, NULL
 struct Hook h_CzytajPlik = {NULL, NULL, (HOOKFUNC)CzytajPlik, NULL, NULL};
 struct Hook h_FontLoad = {NULL, NULL, (HOOKFUNC)FontLoad, NULL, NULL};
 struct Hook h_close_about = {NULL, NULL, (HOOKFUNC)close_about, NULL, NULL};
+struct Hook h_appMsgHook = {NULL, NULL, (HOOKFUNC)appMsgHook, NULL, NULL};
 
 // ==================================================
 
@@ -485,6 +497,10 @@ Object *create_button(char *label, char *control, LONG objid)
         TAG_END);
         return obj;
 }        
+
+ #define MUI_MENU_BARLABEL      MUI_NewObject(MUIC_Menuitem, \
+				MUIA_Menuitem_Title, NM_BARLABEL, \
+                                TAG_END)          
 /* Fun GUI */
 long BuildApplication (void)
 {
@@ -510,9 +526,7 @@ long BuildApplication (void)
 		MUIA_Group_Child, MUI_NewObject(MUIC_Menu,                
 			MUIA_Menu_Title, (long)"File",
 			MUIA_Group_Child, create_menu("Open file", "O", JM_OBJ_MENU_OPENFILE),							                        
-			MUIA_Group_Child, MUI_NewObject(MUIC_Menuitem,
-				MUIA_Menuitem_Title, NM_BARLABEL,
-			TAG_END),                        
+			MUIA_Group_Child, MUI_MENU_BARLABEL,
 			MUIA_Group_Child, create_menu("About", "?", JM_OBJ_MENU_ABOUT),
 			MUIA_Group_Child, MUI_NewObject(MUIC_Menuitem,
 				MUIA_Menuitem_Title, NM_BARLABEL,
@@ -551,8 +565,9 @@ long BuildApplication (void)
     MUIA_Window_Title, win_title = (long)"jsonMaster c 2014-2016 by BlaBla Corp.",
     MUIA_Window_ID, 0x50525A4B,
     MUIA_UserData, OBJ_WINDOW,
+    MUIA_Window_AppWindow, TRUE,
     MUIA_Window_RootObject, MUI_NewObject (MUIC_Group,
-      /*
+      
       MUIA_Group_Child, bitmap_obj = MUI_NewObject (MUIC_Bitmap,
        MUIA_Background, MUII_TextBack,
        MUIA_Frame, MUIV_Frame_Text,
@@ -569,11 +584,12 @@ long BuildApplication (void)
        //MUIA_InnerRight, 0,
 	   //MUIA_InputMode, MUIV_InputMode_RelVerify,
 	   MUIA_ShortHelp, (unsigned long)"strefa mazania",	   
-     TAG_END), */   
+     TAG_END),
            // ttf    
       MUIA_Group_Child, ttbitmap_obj = NewObject (TTBitmapClass->mcc_Class, NULL,
        MUIA_Frame, MUIV_Frame_Text,
        MUIA_Background, MUII_TextBack,
+       MUIA_FixHeight, 40,       
        MUIA_UserData, "dupa",
      TAG_END),       
      
@@ -722,6 +738,9 @@ long BuildApplication (void)
 
 void SetNotifications (void)
 {
+  DoMethod(Win, MUIM_Notify, MUIA_AppMessage, MUIV_EveryTime,
+          Win, 3, MUIM_CallHook, &h_appMsgHook, MUIV_TriggerValue);       
+    
   DoMethod (Win, MUIM_Notify, MUIA_Window_CloseRequest,
         MUIV_EveryTime, App, 2, MUIM_Application_ReturnID,
         MUIV_Application_ReturnID_Quit);
