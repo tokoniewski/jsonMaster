@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <proto/exec.h>
+#include <proto/dos.h>
 #include <workbench/workbench.h>
 //#include <proto/intuition.h>
 #include <libraries/gadtools.h>
@@ -155,19 +156,23 @@ long FontLoad(Object *filestring reg(a2), Object **listview reg(a1))
 /* Hook wywo�ywany po wybraniu pliku */
 
 long CzytajPlik (Object *filestring reg(a2), Object **listview reg(a1))
- {
+{
+    return CzytajPlik_noHook(filestring, *listview);
+}
+long CzytajPlik_noHook(Object *filestring, Object *listview)
+{
   char linia[1024];                  /* miejsce na wczytywane linie */
   char *nazwa_pliku;
   long pozycja, odczyt;
   	//char *nodename;
   //if (Plik) Close (Plik);            /* zamknij ewentualny poprzedni plik */
-  DoMethod (*listview, MUIM_List_Clear);
+  DoMethod (listview, MUIM_List_Clear);
   GetAttr (MUIA_String_Contents, filestring, (long*)&nazwa_pliku);
   
   parse_insert(nazwa_pliku);
   
   return 0;
- }
+}
  
 /* Hook konstrukcyjny */
 
@@ -385,15 +390,6 @@ int convert8utf16(char *utf8, char esc, int *lenchar16)
         return 0;
 }
 
-long appMsgHook(Object *info reg(a2), struct AppMessage **appmsg reg(a1))
-{
-    struct AppMessage *apm = *appmsg;
-    //GetAttr(MUIA_AppMessage, info, apm);
-    //if (apm)
-        printf(" app message is here.. %d:%d %d %s\n", apm, apm->am_NumArgs, apm->am_ArgList[0].wa_Lock, apm->am_ArgList[0].wa_Name);
-    apm->am_ArgList[0].wa_Lock;    
-        
-}
   short *txt16 = 0;
   int lenchar = 0;
   
@@ -416,7 +412,7 @@ long DoubleClickHook(Object *info reg(a2))
   {
         printf("String UTF8-16 ...\n");
         SetAttrs(ttbitmap_obj, MUIA_UserData, jnode->curjson->u.string.ptr, TAG_END);
-        SetAttrs(ttbitmap_obj, MUIA_Background, MUII_SHADOW, TAG_END);
+        //SetAttrs(ttbitmap_obj, MUIA_Background, MUII_SHADOW, TAG_END);
         MUI_Redraw(ttbitmap_obj, MADF_DRAWUPDATE);
         //utf_text_info(jnode->curjson->u.object.values,'z');
         //utf_text_info(jnode->curjson->u.string.ptr, 'u');
@@ -426,7 +422,7 @@ long DoubleClickHook(Object *info reg(a2))
             //DoMethod(ttbitmap_obj, MUIM_Draw, MADF_DRAWOBJECT);
             //MUI_Redraw(bitmap_obj, MADF_DRAWOBJECT);
         
-        if (txt16)
+        /*if (txt16)
         {
             printf("drawing...\n");
             TT_SetAttrs(rp, TT_Window, (ULONG)syswin, TAG_END);
@@ -440,7 +436,7 @@ long DoubleClickHook(Object *info reg(a2))
             //TT_Text(rp, "This is a text printed with TT_Text().", 38);
             TT_Text(rp, txt16, lenchar);
             free(txt16);           
-        }
+        }*/
         return 0;
   }
   if (jnode->isfolded>0)
@@ -466,8 +462,28 @@ struct Hook h_LiniaDisplayer = {NULL, NULL, (HOOKFUNC)LiniaDisplayer, NULL, NULL
 struct Hook h_CzytajPlik = {NULL, NULL, (HOOKFUNC)CzytajPlik, NULL, NULL};
 struct Hook h_FontLoad = {NULL, NULL, (HOOKFUNC)FontLoad, NULL, NULL};
 struct Hook h_close_about = {NULL, NULL, (HOOKFUNC)close_about, NULL, NULL};
-struct Hook h_appMsgHook = {NULL, NULL, (HOOKFUNC)appMsgHook, NULL, NULL};
 
+#define STO150  150
+long appMsgHook(Object *info reg(a2), struct AppMessage **appmsg reg(a1))
+{
+    char lockname[STO150];    
+    BPTR oldlock;
+    struct AppMessage *apm = *appmsg;
+    
+        //printf(" app message is here.. %d %s\n", apm->am_NumArgs, apm->am_ArgList[0].wa_Name);
+    if (apm->am_NumArgs>0)    
+    {
+        if (NameFromLock(apm->am_ArgList[0].wa_Lock, lockname, STO150-1))
+        {
+            printf("AppMessage file: %s %s\n", lockname, apm->am_ArgList[0].wa_Name);
+        }
+        oldlock = CurrentDir(apm->am_ArgList[0].wa_Lock);
+        SetAttrs(String, MUIA_String_Contents, apm->am_ArgList[0].wa_Name, TAG_DONE);
+        CzytajPlik_noHook(String, Listview);
+        CurrentDir(oldlock);
+    }        
+}
+struct Hook h_appMsgHook = {NULL, NULL, (HOOKFUNC)appMsgHook, NULL, NULL};
 // ==================================================
 
 Object *create_menu(char *label, char *control, LONG objid)
@@ -763,8 +779,6 @@ void SetNotifications (void)
    DoMethod (about_btn, MUIM_Notify, MUIA_Pressed, TRUE,   
         App, 2, MUIM_CallHook, &h_close_about );
    
-   //DoMethod (menu_load, MUIM_Notify, MUIA_Menuitem_Trigger, MUIV_EveryTime,
-     //   App, 3, MUIM_CallHook, &h_CzytajPlik, Listview);
   /* Notyfikacja na wprowadzenie nazwy pliku */
   DoMethod (ttf_string, MUIM_Notify, MUIA_String_Acknowledge, MUIV_EveryTime, MUIV_Notify_Self,
         2, MUIM_CallHook, &h_FontLoad);
@@ -790,7 +804,7 @@ void SetNotifications (void)
   return;
 }
 
-/* p�tla g��wna programu */
+/* petla glowna programu */
 
 void MainLoop (void)
  {

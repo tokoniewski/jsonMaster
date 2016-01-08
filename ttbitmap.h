@@ -13,7 +13,12 @@
 #ifdef	__cplusplus
 extern "C" {
 #endif
-    
+
+extern short *txt16;
+extern int lenchar;
+extern Object *Info;
+extern struct Window *syswin;
+  
 struct TTBitmap
  {
   short **txt16;

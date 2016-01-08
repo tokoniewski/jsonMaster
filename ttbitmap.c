@@ -32,10 +32,9 @@ long mAskMinMax (Class *cl, Object *obj, struct MUIP_AskMinMax *msg)
 
 /* metoda Draw */
 
-#define RADIUS 18   /* promieď strzaîki */
 
 long mDraw (Class *cl, Object *obj, struct MUIP_Draw *msg)
- {
+{
   //long dx= 20;
   //long dy= 10;
   static char *srctxtptr="dup2";
@@ -47,23 +46,26 @@ long mDraw (Class *cl, Object *obj, struct MUIP_Draw *msg)
         DoSuperMethodA (cl, obj, (Msg)msg);
   
   data->cliphandle = 0;
-  data->cliphandle = MUI_AddClipping(mri, _left(obj)+5, _mtop(obj)+5, _mright(obj)-_mleft(obj)-5, _mbottom(obj)-_mtop(obj)-5 );
+  //data->cliphandle = MUI_AddClipping(mri, _left(obj)+5, _mtop(obj)+5, _mright(obj)-_mleft(obj)-5, _mbottom(obj)-_mtop(obj)-5 );
   
   GetAttr(MUIA_UserData, obj, (ULONG *)&srctxtptr);
   data->test=srctxtptr;
   //if (srctxtptr) printf(" User Data %s...\n", srctxtptr);
-  /*
-    TT_SetAttrs(rp, TT_Window, _window(obj), TAG_END);
-    SetAPen(rp, 2);
-    SetDrMd(rp, JAM1);
-    Move(rp, 20, 40);
-    TT_SetAttrs(rp,
+  
+  if (txt16)
+  {
+      SetAttrs (Info, MUIA_Text_Contents, "drawing... ");
+        TT_SetAttrs(rp, TT_Window, syswin, TAG_END);
+        SetAPen(rp, 2);
+        SetDrMd(rp, JAM1);
+        Move(rp, _mleft(obj)+10, _mtop(obj)+10);
+        TT_SetAttrs(rp,
             TT_Antialias, TT_Antialias_Off, 
             TT_Encoding, TT_Encoding_UTF16_BE, 
             TAG_END);
-    //TT_Text(rp, "This is a text printed with TT_Text().", 38);
-    TT_Text(rp, data->txt16, data->lenchar);
-  */
+        TT_Text(rp, "This is a text printed with TT_Text().", 38);
+        //TT_Text(rp, data->txt16, data->lenchar);
+  }
   
   SetAPen (rp, 1);
   Move (rp, _mleft(obj) , _mtop(obj) );
@@ -83,10 +85,10 @@ long mDraw (Class *cl, Object *obj, struct MUIP_Draw *msg)
   //WritePixel (rp, _mleft(obj) + 5, (_mtop(obj) + _mbottom(obj))/2);
     */  
   //if (data->cliphandle!=0)      
-      MUI_RemoveClipping(mri, data->cliphandle);
+      //MUI_RemoveClipping(mri, data->cliphandle);
   //printf("mDraw...\n");
   return 0;
- }
+}
 
 /* metoda Setup */
 
