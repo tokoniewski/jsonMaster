@@ -43,10 +43,10 @@ long mDraw (Class *cl, Object *obj, struct MUIP_Draw *msg)
   struct TTBitmap *data = INST_DATA(cl,obj);
   struct MUI_RenderInfo *mri = muiRenderInfo(obj);
   
-        DoSuperMethodA (cl, obj, (Msg)msg);
+        DoSuperMethodA (cl, obj, msg);
   
   data->cliphandle = 0;
-  //data->cliphandle = MUI_AddClipping(mri, _left(obj)+5, _mtop(obj)+5, _mright(obj)-_mleft(obj)-5, _mbottom(obj)-_mtop(obj)-5 );
+  data->cliphandle = MUI_AddClipping(mri, _left(obj)+2, _mtop(obj)+2, _mright(obj)-_mleft(obj)-2, _mbottom(obj)-_mtop(obj)-2 );
   
   GetAttr(MUIA_UserData, obj, (ULONG *)&srctxtptr);
   data->test=srctxtptr;
@@ -55,18 +55,18 @@ long mDraw (Class *cl, Object *obj, struct MUIP_Draw *msg)
   if (txt16)
   {
       SetAttrs (Info, MUIA_Text_Contents, "drawing... ");
-        TT_SetAttrs(rp, TT_Window, syswin, TAG_END);
+        TT_SetAttrs(rp, TT_Window, _window(obj), TAG_END);
         SetAPen(rp, 2);
         SetDrMd(rp, JAM1);
-        Move(rp, _mleft(obj)+10, _mtop(obj)+10);
+        Move(rp, _mleft(obj)+3, _mtop(obj)+3+14);
         TT_SetAttrs(rp,
             TT_Antialias, TT_Antialias_Off, 
             TT_Encoding, TT_Encoding_UTF16_BE, 
             TAG_END);
-        TT_Text(rp, "This is a text printed with TT_Text().", 38);
-        //TT_Text(rp, data->txt16, data->lenchar);
+        //TT_Text(rp, "This is a text printed with TT_Text().", 38);
+        TT_Text(rp, txt16, lenchar);
   }
-  
+  /*
   SetAPen (rp, 1);
   Move (rp, _mleft(obj) , _mtop(obj) );
   Draw (rp, _mright(obj) , _mbottom(obj) );
@@ -78,15 +78,14 @@ long mDraw (Class *cl, Object *obj, struct MUIP_Draw *msg)
   Draw (rp, (_mleft(obj) + _mright(obj))/2, _mbottom(obj));    
   Draw (rp, _mleft(obj) , (_mtop(obj) + _mbottom(obj))/2);
   Draw (rp, _mright(obj), (_mtop(obj) + _mbottom(obj))/2); 
-   
+  */ 
   /*
   SetAPen (rp, 2);
   //WritePixel (rp, (_mleft(obj) + _right(obj))/2, _mtop(obj) + 5);
   //WritePixel (rp, _mleft(obj) + 5, (_mtop(obj) + _mbottom(obj))/2);
     */  
   //if (data->cliphandle!=0)      
-      //MUI_RemoveClipping(mri, data->cliphandle);
-  //printf("mDraw...\n");
+      MUI_RemoveClipping(mri, data->cliphandle);
   return 0;
 }
 

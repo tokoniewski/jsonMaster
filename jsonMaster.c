@@ -394,7 +394,7 @@ int convert8utf16(char *utf8, char esc, int *lenchar16)
   int lenchar = 0;
   
 long DoubleClickHook(Object *info reg(a2))
- {
+{
   //short *txt16 = 0;
   //int lenchar = 0;
   long poz=-1;  
@@ -413,11 +413,8 @@ long DoubleClickHook(Object *info reg(a2))
         printf("String UTF8-16 ...\n");
         SetAttrs(ttbitmap_obj, MUIA_UserData, jnode->curjson->u.string.ptr, TAG_END);
         //SetAttrs(ttbitmap_obj, MUIA_Background, MUII_SHADOW, TAG_END);
-        MUI_Redraw(ttbitmap_obj, MADF_DRAWUPDATE);
-        //utf_text_info(jnode->curjson->u.object.values,'z');
-        //utf_text_info(jnode->curjson->u.string.ptr, 'u');
-        //printf("%s\n", jnode->curjson->u.string.ptr);
         txt16 = convert8utf16(jnode->curjson->u.string.ptr, 'z', &lenchar);
+        MUI_Redraw(ttbitmap_obj, MADF_DRAWOBJECT);
         //if (txt16) 
             //DoMethod(ttbitmap_obj, MUIM_Draw, MADF_DRAWOBJECT);
             //MUI_Redraw(bitmap_obj, MADF_DRAWOBJECT);
@@ -445,7 +442,7 @@ long DoubleClickHook(Object *info reg(a2))
 	fold(info);
 	//printf(" Klik! :P\n"); 
 	return 0;	
- }
+}
  
 long close_about(Object* obj,  Msg msg)
 {
@@ -583,7 +580,7 @@ long BuildApplication (void)
     MUIA_UserData, OBJ_WINDOW,
     MUIA_Window_AppWindow, TRUE,
     MUIA_Window_RootObject, MUI_NewObject (MUIC_Group,
-      
+      /*
       MUIA_Group_Child, bitmap_obj = MUI_NewObject (MUIC_Bitmap,
        MUIA_Background, MUII_TextBack,
        MUIA_Frame, MUIV_Frame_Text,
@@ -600,13 +597,15 @@ long BuildApplication (void)
        //MUIA_InnerRight, 0,
 	   //MUIA_InputMode, MUIV_InputMode_RelVerify,
 	   MUIA_ShortHelp, (unsigned long)"strefa mazania",	   
-     TAG_END),
+     TAG_END),*/
            // ttf    
       MUIA_Group_Child, ttbitmap_obj = NewObject (TTBitmapClass->mcc_Class, NULL,
+      //MUIA_FillArea, FALSE,
        MUIA_Frame, MUIV_Frame_Text,
        MUIA_Background, MUII_TextBack,
-       MUIA_FixHeight, 40,       
-       MUIA_UserData, "dupa",
+       MUIA_FixHeight, 30,       
+       MUIA_UserData, "duap",
+       MUIA_ShortHelp, (long)" UTF display area... ",
      TAG_END),       
      
      MUIA_Group_Child, MUI_NewObject (MUIC_Group,
@@ -777,7 +776,7 @@ void SetNotifications (void)
         App, 2, MUIM_CallHook, &h_close_about );
    
    DoMethod (about_btn, MUIM_Notify, MUIA_Pressed, TRUE,   
-        App, 2, MUIM_CallHook, &h_close_about );
+        InfoWin, 3, MUIM_Set, MUIA_Window_Open, FALSE);
    
   /* Notyfikacja na wprowadzenie nazwy pliku */
   DoMethod (ttf_string, MUIM_Notify, MUIA_String_Acknowledge, MUIV_EveryTime, MUIV_Notify_Self,
