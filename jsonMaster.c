@@ -10,7 +10,7 @@
 #include <proto/ttengine.h>
 #include <libraries/ttengine.h>
 #include <libraries/asl.h>
-
+   
 #include "jsonMaster.h"
 #include "json.h"
 #include "jsonutil.h"
@@ -30,20 +30,14 @@ struct json_node_state
 	int isfolded;
 };
 																
-Object *Win, *App, *Listview, *String, *Info;
-Object *about_btn;
-Object *jsonload_popup;
+Object *Win, *App, *Listview, *String;
 Object *menu_lastload;
 Object *InfoWin;
-//Object *menu_ttfutf_file;
 Object *ttf_string=0;
 Object *ttf_popup;
 Object *ttbitmap_obj = 0;
-Object *bitmap_obj = 0;
 APTR font = 0;
-  struct Window *syswin = 0;
-  struct RastPort *rp = 0;
-BPTR Plik = NULL;
+//BPTR Plik = NULL;
 json_value *jo=0;
 int expand_all=0;
 char *no_string="no string\n";
@@ -94,15 +88,15 @@ void parse_insert(char *nazwa_pliku)
 {
     json_value *nn=0;
     
-    SetAttrs (Info, MUIA_Text_Contents, "parsing... ");	
-  if (jo!=0)
-	json_value_free(jo);
+    SetAttrs(findobj(JM_OBJ_BUTTON_INFO, Win), MUIA_Text_Contents, "parsing... ");
+    if (jo!=0)
+        json_value_free(jo);
   
   jo=loadJson(nazwa_pliku);
   if (jo)
    {
     //SetAttrs (Info, MUIA_Text_Contents, "parsed ok ");	   
-      SetAttrs (Info, MUIA_Text_Contents, infochar);	
+      SetAttrs(findobj(JM_OBJ_BUTTON_INFO, App), MUIA_Text_Contents, infochar);	
     //SetAttrs (App, MUIA_Application_Sleep, TRUE, TAG_END);  /* kursor "zegarkowy" */
     //SetAttrs (*listview, MUIA_List_Quiet, TRUE, TAG_END);    /* blokuj� od�wie�anie listy */
 	jsonlevel=0;
@@ -117,7 +111,7 @@ void parse_insert(char *nazwa_pliku)
     //SetAttrs (App, MUIA_Application_Sleep, FALSE, TAG_END);  /* kursor normalny */
    }
   else
-      SetAttrs (Info, MUIA_Text_Contents, "parser error... ");
+      SetAttrs(findobj(JM_OBJ_BUTTON_INFO, App), MUIA_Text_Contents, "parser error... ");
 } 
 
 APTR *init_font(char *name)
@@ -128,7 +122,7 @@ APTR *init_font(char *name)
             //TT_FontFile, "PROGDIR:AndaleMo.ttf",
             //TT_FontFile, "PROGDIR:MCTIME.ttf",
             TT_FontFile, name,
-           TT_FontSize, 14, 
+            TT_FontSize, 14, 
             TAG_END);
     return font;
 }
@@ -136,21 +130,31 @@ APTR *init_font(char *name)
 long FontLoad(Object *filestring reg(a2), Object **listview reg(a1))
 {
     char *font_name = 0;
-    GetAttr (MUIA_String_Contents, ttf_string , (long*)&font_name);
-    printf("FOnt name: %s \n", font_name);
-    if(font)
-        TT_CloseFont(font);
-    font = 0;
+    APTR oldfont = font;
+    struct Window *syswin = 0;
     
+    GetAttr (MUIA_String_Contents, ttf_string , (long*)&font_name);
+    GetAttr(MUIA_Window_Window, Win, &syswin);
+    //rp = syswin->RPort;      
+    //printf("FOnt name: %s \n", font_name);
+    SetAttrs(findobj(JM_OBJ_BUTTON_INFO, App), MUIA_Text_Contents, font_name);    
+    //font = 0;    
     font = init_font(font_name);
     if (font)
     {
-        if (rp)
-                TT_SetFont(rp, font);
-        printf("OK. Font ready\n");
+        if (syswin->RPort)
+                TT_SetFont(syswin->RPort, font);
+        //printf("OK. Font ready\n");
+        SetAttrs(findobj(JM_OBJ_BUTTON_INFO, App), MUIA_Text_Contents, "OK. Font ready");
+        if(oldfont)
+                TT_CloseFont(oldfont);        
     }
     else
-       printf("TTF error...\n");                              
+    {
+        font = oldfont;
+        ///printf("TTF error...\n");
+        SetAttrs(findobj(JM_OBJ_BUTTON_INFO, App), MUIA_Text_Contents, "TTF error...");
+    }
 }
 
 /* Hook wywo�ywany po wybraniu pliku */
@@ -414,6 +418,7 @@ long DoubleClickHook(Object *info reg(a2))
         SetAttrs(ttbitmap_obj, MUIA_UserData, jnode->curjson->u.string.ptr, TAG_END);
         //SetAttrs(ttbitmap_obj, MUIA_Background, MUII_SHADOW, TAG_END);
         txt16 = convert8utf16(jnode->curjson->u.string.ptr, 'z', &lenchar);
+        //SetAttrs (Info, MUIA_Text_Contents, "drawing... "); 
         MUI_Redraw(ttbitmap_obj, MADF_DRAWOBJECT);
         //if (txt16) 
             //DoMethod(ttbitmap_obj, MUIM_Draw, MADF_DRAWOBJECT);
@@ -513,29 +518,11 @@ Object *create_button(char *label, char *control, LONG objid)
 
  #define MUI_MENU_BARLABEL      MUI_NewObject(MUIC_Menuitem, \
 				MUIA_Menuitem_Title, NM_BARLABEL, \
-                                TAG_END)          
-/* Fun GUI */
-long BuildApplication (void)
+                                TAG_END) 
+Object *BuildMenu()
 {
-    char copyright = 0xA9; 
-    char *win_title = 0;
-    char *screen_title = 0;
-    
-  App = MUI_NewObject (MUIC_Application,
-   MUIA_Application_Author, (long)JM_App_Author,
-   MUIA_Application_Base, (long)JM_App_Base,
-   MUIA_Application_Copyright, (long)JM_App_Copyright,
-   MUIA_Application_Description, (long)JM_App_Descr,
-   MUIA_Application_Title, (long)JM_App_Title,
-   MUIA_Application_Version, (long)JM_App_Version,
-   /*
-   MUIA_Application_Author, (long)"Tomasz Okoniewski - virago/BlaBla)",
-   MUIA_Application_Base, (long)"JSONMASTER",
-   MUIA_Application_Copyright, screen_title=(long)"c 2014-2015 by BlaBla Corp.",
-   MUIA_Application_Description, (long)"simple json files viewer",
-   MUIA_Application_Title, (long)"jsonMaster",
-   MUIA_Application_Version, (long)"$VER: jsonMaster 1.0 (21.12.2015) BLABLA PRODUCT",*/
-   MUIA_Application_Menustrip, MUI_NewObject(MUIC_Menustrip,
+    Object *m = 0;
+    m = MUI_NewObject(MUIC_Menustrip,
 		MUIA_Group_Child, MUI_NewObject(MUIC_Menu,                
 			MUIA_Menu_Title, (long)"File",
 			MUIA_Group_Child, create_menu("Open file", "O", JM_OBJ_MENU_OPENFILE),							                        
@@ -566,49 +553,73 @@ long BuildApplication (void)
 			MUIA_Group_Child, MUI_NewObject(MUIC_Menuitem,
 				MUIA_Menuitem_Title, (long)"About MUI ",
 			TAG_END),
-		TAG_END),
-                
+		TAG_END),                
 		MUIA_Group_Child, MUI_NewObject(MUIC_Menu,
 			MUIA_Menu_Title, (long)"TTF font",
 			MUIA_Group_Child, create_menu("Select UTF-16 .ttf font", "T", JM_OBJ_MENU_SELTTF),                      
-		TAG_END),
-                
-	TAG_END),
-   MUIA_Application_Window, Win = MUI_NewObject (MUIC_Window,
-    MUIA_Window_Title, win_title = (long)"jsonMaster c 2014-2016 by BlaBla Corp.",
-    MUIA_Window_ID, 0x50525A4B,
-    MUIA_UserData, OBJ_WINDOW,
-    MUIA_Window_AppWindow, TRUE,
-    MUIA_Window_RootObject, MUI_NewObject (MUIC_Group,
-      /*
-      MUIA_Group_Child, bitmap_obj = MUI_NewObject (MUIC_Bitmap,
-       MUIA_Background, MUII_TextBack,
-       MUIA_Frame, MUIV_Frame_Text,
-       //MUIA_Bitmap_Bitmap, img_bitmap,
-       //MUIA_FixWidth, ppn->x,
-       MUIA_FixHeight, 30,
-       //MUIA_Image_FreeVert, TRUE,
-       //MUIA_Image_FreeHoriz, TRUE,
-       //MUIA_Bitmap_Width, ppn->x,
-       MUIA_Bitmap_Height, 30,
-       //MUIA_InnerTop, 0,
-       //MUIA_InnerBottom, 0,
-       //MUIA_InnerLeft, 0,
-       //MUIA_InnerRight, 0,
-	   //MUIA_InputMode, MUIV_InputMode_RelVerify,
-	   MUIA_ShortHelp, (unsigned long)"strefa mazania",	   
-     TAG_END),*/
-           // ttf    
-      MUIA_Group_Child, ttbitmap_obj = NewObject (TTBitmapClass->mcc_Class, NULL,
-      //MUIA_FillArea, FALSE,
-       MUIA_Frame, MUIV_Frame_Text,
-       MUIA_Background, MUII_TextBack,
-       MUIA_FixHeight, 30,       
-       MUIA_UserData, "duap",
-       MUIA_ShortHelp, (long)" UTF display area... ",
-     TAG_END),       
-     
-     MUIA_Group_Child, MUI_NewObject (MUIC_Group,
+		TAG_END),                
+	TAG_END);
+    return m;
+}
+
+Object *BuildListview()
+{
+    Object lv = 0;
+    lv = MUI_NewObject(MUIC_Listview,
+        MUIA_Listview_Input, TRUE,                        /* lista tylko do odczytu - bez kursora */
+        MUIA_Listview_List, MUI_NewObject (MUIC_List,
+                MUIA_List_ConstructHook, (long)&h_LiniaConstructor,
+                MUIA_List_DestructHook, (long)&h_LiniaDestructor,
+                MUIA_List_DisplayHook, (long)&h_LiniaDisplayer,
+                //MUIA_List_ConstructHook, MUIV_List_ConstructHook_String,
+                //MUIA_List_DestructHook, MUIV_List_DestructHook_String,
+                MUIA_List_Format, (long)"BAR PREPARSE=\33r,BAR MAXWIDTH=-1,,PREPARSE=\33r",
+                MUIA_List_Title, TRUE,
+                MUIA_Frame, MUIV_Frame_ReadList,
+                MUIA_Font, MUIV_Font_Fixed,
+                TAG_END),
+        MUIA_Listview_DoubleClick, TRUE,
+	MUIA_CycleChain, TRUE,
+        TAG_END);    
+    return lv;
+}
+
+Object *BuildJsonFileReq()
+{
+    Object *o = 0;
+    o = MUI_NewObject(MUIC_Group,
+        MUIA_Group_Horiz, TRUE,
+        MUIA_Group_Child, MUI_NewObject(MUIC_Text,
+                MUIA_Text_Contents, (long)"\33rFile",
+                MUIA_Frame, MUIV_Frame_String,
+                MUIA_FramePhantomHoriz, TRUE,
+                MUIA_HorizWeight, 0,
+        TAG_END),      
+        MUIA_Group_Child, /*jsonload_popup =*/ MUI_NewObject(MUIC_Popasl,
+                MUIA_UserData, JM_OBJ_BTN_POPUP_JSON,
+                MUIA_Popasl_Type, ASL_FileRequest,          
+                MUIA_Popstring_String, String = MUI_NewObject(MUIC_String,
+                        MUIA_Frame, MUIV_Frame_String,
+                        MUIA_ObjectID, 0x01234568,         
+                        MUIA_CycleChain, TRUE,		
+                TAG_END),
+                MUIA_Popstring_Button, MUI_NewObject(MUIC_Image,
+                        MUIA_Image_Spec, MUII_PopFile,
+                        MUIA_ShortHelp, (long)" Select json file ;-) ",
+                        MUIA_Image_FontMatch, TRUE,
+                        MUIA_Frame, MUIV_Frame_ImageButton,
+                        MUIA_InputMode, MUIV_InputMode_RelVerify,
+                        MUIA_CycleChain, TRUE,
+                TAG_END),
+        TAG_END),
+    TAG_END);
+    return o;
+}
+
+Object *BuildTTFfontReq()
+{
+    Object *o = 0;
+    o = MUI_NewObject (MUIC_Group,
       MUIA_Group_Horiz, TRUE,
       MUIA_Group_Child, MUI_NewObject (MUIC_Text,
        MUIA_Text_Contents, (long)"\33rTTF Font",
@@ -633,70 +644,14 @@ long BuildApplication (void)
 		MUIA_CycleChain, TRUE,
        TAG_END),
       TAG_END),      
-     TAG_END),
-     // ==============================================
-          MUIA_Group_Child, MUI_NewObject (MUIC_Group,
-      MUIA_Group_Horiz, TRUE,
-      MUIA_Group_Child, MUI_NewObject (MUIC_Text,
-       MUIA_Text_Contents, (long)"\33rFile",
-       MUIA_Frame, MUIV_Frame_String,
-       MUIA_FramePhantomHoriz, TRUE,
-       MUIA_HorizWeight, 0,
-      TAG_END),      
-      MUIA_Group_Child, jsonload_popup = MUI_NewObject (MUIC_Popasl,
-      MUIA_Popasl_Type, ASL_FileRequest,          
-       MUIA_Popstring_String, String = MUI_NewObject (MUIC_String,
-        MUIA_Frame, MUIV_Frame_String,
-        MUIA_ObjectID, 0x01234568,         
-        MUIA_CycleChain, TRUE,		
-       TAG_END),
-       MUIA_Popstring_Button, MUI_NewObject (MUIC_Image,
-        MUIA_Image_Spec, MUII_PopFile,
-        MUIA_ShortHelp, (long)" Select json file ;-) ",
-        MUIA_Image_FontMatch, TRUE,
-        MUIA_Frame, MUIV_Frame_ImageButton,
-        MUIA_InputMode, MUIV_InputMode_RelVerify,
-		MUIA_CycleChain, TRUE,
-       TAG_END),
-      TAG_END),
-     TAG_END),
-        // json file select ^^^^^^
-	 MUIA_Group_Child, MUI_NewObject (MUIC_Group,       /* grupa z przyciskami */
-                MUIA_Group_Horiz, TRUE,
-                MUIA_Group_Child, create_button("\33cExpand", 'e', JM_OBJ_BUTTON_EXPAND),
-                MUIA_Group_Child, create_button("\33cFold",'f', JM_OBJ_BUTTON_FOLD),
-                MUIA_Group_Child, create_button("\33cExpand All", 0, JM_OBJ_BUTTON_EXALL),
-                MUIA_Group_Child, create_button("\33cFold All", 0, JM_OBJ_BUTTON_FOLDALL),
-         TAG_END),
-     MUIA_Group_Child, Listview = MUI_NewObject (MUIC_Listview,
-      MUIA_Listview_Input, TRUE,                        /* lista tylko do odczytu - bez kursora */
-      MUIA_Listview_List, MUI_NewObject (MUIC_List,
-       MUIA_List_ConstructHook, (long)&h_LiniaConstructor,
-       MUIA_List_DestructHook, (long)&h_LiniaDestructor,
-       MUIA_List_DisplayHook, (long)&h_LiniaDisplayer,
-	   //MUIA_List_ConstructHook, MUIV_List_ConstructHook_String,
-	   //MUIA_List_DestructHook, MUIV_List_DestructHook_String,
-       MUIA_List_Format, (long)"BAR PREPARSE=\33r,BAR MAXWIDTH=-1,,PREPARSE=\33r",	   
-	   MUIA_List_Title, TRUE,
-       MUIA_Frame, MUIV_Frame_ReadList,
-       MUIA_Font, MUIV_Font_Fixed,
-      TAG_END),
-	  MUIA_Listview_DoubleClick, TRUE,
-	  MUIA_CycleChain, TRUE,
-     TAG_END),
-	 MUIA_Group_Child, Info = MUI_NewObject (MUIC_Text,        /* pole informacyjne */
-      MUIA_Frame, MUIV_Frame_Text,
-      MUIA_Background, MUII_TextBack,
-     TAG_END),
-    TAG_END),
-   TAG_END),
-  TAG_END);
+     TAG_END);
+    return o;
+}
 
-  win_title[11] = copyright;
-  screen_title[0] = copyright;
-  
-  InfoWin = 0;
-  InfoWin = MUI_NewObject (MUIC_Window,
+Object *BuildInfoWin()
+{
+    Object *o = 0;
+    o = MUI_NewObject (MUIC_Window,
         MUIA_Window_Title, (long)"jsonMaster Information",
         MUIA_Window_ID, 0x50525A4C,
         MUIA_UserData, OBJ_WINDOW+1,
@@ -725,7 +680,8 @@ long BuildApplication (void)
                         //Child, Label1("\33c " ),                         
                         //Child, Label1("\33c krashan, kaczus, stefkos " ),                        
                         //Child, Label1("\33c tygrys, widelec"),                                               
-                        MUIA_Group_Child, about_btn = MUI_NewObject (MUIC_Text,
+                        MUIA_Group_Child, /*about_btn =*/ MUI_NewObject (MUIC_Text,
+                                MUIA_UserData, JM_OBJ_BTN_ABOUT_OK,
                                 MUIA_Frame, MUIV_Frame_Button,
                                 MUIA_Background, MUII_ButtonBack,
                                 MUIA_Font, MUIV_Font_Button,                        
@@ -735,7 +691,72 @@ long BuildApplication (void)
                         TAG_END),                        
                 TAG_END),                  
           TAG_END),
+    TAG_END);    
+    return o;
+}
+
+/* Fun GUI */
+long BuildApplication (void)
+{
+    char copyright = 0xA9; 
+    char *win_title = 0;
+    char *screen_title = 0;
+    
+    App = MUI_NewObject(MUIC_Application,
+        MUIA_Application_Author, (long)JM_App_Author,
+        MUIA_Application_Base, (long)JM_App_Base,
+        MUIA_Application_Copyright, (long)JM_App_Copyright,
+        MUIA_Application_Description, (long)JM_App_Descr,
+        MUIA_Application_Title, (long)JM_App_Title,
+        MUIA_Application_Version, (long)JM_App_Version,
+        /*MUIA_Application_Author, (long)"Tomasz Okoniewski - virago/BlaBla)",
+        MUIA_Application_Base, (long)"JSONMASTER",
+        MUIA_Application_Copyright, screen_title=(long)"c 2014-2015 by BlaBla Corp.",
+        MUIA_Application_Description, (long)"simple json files viewer",
+        MUIA_Application_Title, (long)"jsonMaster",
+        MUIA_Application_Version, (long)"$VER: jsonMaster 1.0 (21.12.2015) BLABLA PRODUCT",*/
+        MUIA_Application_Menustrip, BuildMenu(),        
+        MUIA_Application_Window, Win = MUI_NewObject (MUIC_Window,
+                MUIA_Window_Title, win_title = (long)"jsonMaster c 2014-2016 by BlaBla Corp.",
+                MUIA_Window_ID, 0x50525A4B,
+                MUIA_UserData, OBJ_WINDOW,
+                MUIA_Window_AppWindow, TRUE,
+                MUIA_Window_RootObject, MUI_NewObject(MUIC_Group,
+                // ttf    
+                MUIA_Group_Child, ttbitmap_obj = NewObject (TTBitmapClass->mcc_Class, NULL,
+                        //MUIA_FillArea, FALSE,
+                        MUIA_Frame, MUIV_Frame_Text,
+                        MUIA_Background, MUII_TextBack,
+                        MUIA_FixHeight, 30,       
+                        MUIA_UserData, "duap",
+                        MUIA_ShortHelp, (long)" UTF display area... ",
+                TAG_END),
+                MUIA_Group_Child, BuildTTFfontReq(),
+        // ==============================================
+                MUIA_Group_Child, BuildJsonFileReq(),
+        // json file select ^^^^^^
+                MUIA_Group_Child, MUI_NewObject (MUIC_Group,       /* grupa z przyciskami */
+                        MUIA_Group_Horiz, TRUE,
+                        MUIA_Group_Child, create_button("\33cExpand", 'e', JM_OBJ_BUTTON_EXPAND),
+                        MUIA_Group_Child, create_button("\33cFold",'f', JM_OBJ_BUTTON_FOLD),
+                        MUIA_Group_Child, create_button("\33cExpand All", 0, JM_OBJ_BUTTON_EXALL),
+                        MUIA_Group_Child, create_button("\33cFold All", 0, JM_OBJ_BUTTON_FOLDALL),
+                TAG_END),
+                MUIA_Group_Child, Listview = BuildListview(),
+                MUIA_Group_Child, MUI_NewObject (MUIC_Text,        /* pole informacyjne */
+                        MUIA_Frame, MUIV_Frame_Text,
+                        MUIA_Background, MUII_TextBack,
+                        MUIA_UserData, JM_OBJ_BUTTON_INFO, 
+                TAG_END),
+                TAG_END),
+        TAG_END),
     TAG_END);
+    
+    win_title[11] = copyright;
+    screen_title[0] = copyright;  
+    
+    InfoWin = 0;    
+    InfoWin = BuildInfoWin();
     
     if (App)
         DoMethod(App, OM_ADDMEMBER, InfoWin);                
@@ -770,12 +791,12 @@ void SetNotifications (void)
         ttf_popup, 1, MUIM_Popstring_Open);     
    
    DoMethod(findobj(JM_OBJ_MENU_OPENFILE, App), MUIM_Notify, MUIA_Menuitem_Trigger, MUIV_EveryTime,
-        jsonload_popup, 1, MUIM_Popstring_Open);     
+        findobj(JM_OBJ_BTN_POPUP_JSON, App), 1, MUIM_Popstring_Open);     
    
    DoMethod (InfoWin, MUIM_Notify, MUIA_Window_CloseRequest, MUIV_EveryTime,
         App, 2, MUIM_CallHook, &h_close_about );
    
-   DoMethod (about_btn, MUIM_Notify, MUIA_Pressed, TRUE,   
+   DoMethod (findobj(JM_OBJ_BTN_ABOUT_OK, InfoWin), MUIM_Notify, MUIA_Pressed, TRUE,   
         InfoWin, 3, MUIM_Set, MUIA_Window_Open, FALSE);
    
   /* Notyfikacja na wprowadzenie nazwy pliku */
@@ -786,19 +807,19 @@ void SetNotifications (void)
         3, MUIM_CallHook, &h_CzytajPlik, Listview);
 
   DoMethod (findobj(JM_OBJ_BUTTON_EXPAND, Win), MUIM_Notify, MUIA_Pressed,
-        FALSE, Info, 2, MUIM_CallHook, &h_ExpandHook);
+        FALSE, findobj(JM_OBJ_BUTTON_INFO, App), 2, MUIM_CallHook, &h_ExpandHook);
   
   DoMethod(findobj(JM_OBJ_MENU_EXLEV, App), MUIM_Notify, MUIA_Menuitem_Trigger, MUIV_EveryTime,
-        Info, 2, MUIM_CallHook, &h_ExpandHook);
+        findobj(JM_OBJ_BUTTON_INFO, App), 2, MUIM_CallHook, &h_ExpandHook);
      
   DoMethod (findobj(JM_OBJ_BUTTON_FOLD, Win), MUIM_Notify, MUIA_Pressed,
-        FALSE, Info, 2, MUIM_CallHook, &h_FoldHook);
+        FALSE, findobj(JM_OBJ_BUTTON_INFO, App), 2, MUIM_CallHook, &h_FoldHook);
   
   DoMethod(findobj(JM_OBJ_MENU_FOLD, App), MUIM_Notify, MUIA_Menuitem_Trigger, MUIV_EveryTime,
-        Info, 2, MUIM_CallHook, &h_FoldHook);  
+        findobj(JM_OBJ_BUTTON_INFO, App), 2, MUIM_CallHook, &h_FoldHook);  
    
   DoMethod (Listview, MUIM_Notify, MUIA_Listview_DoubleClick,
-        TRUE, Info, 2, MUIM_CallHook, &h_DoubleClickHook);  
+        TRUE, findobj(JM_OBJ_BUTTON_INFO, App), 2, MUIM_CallHook, &h_DoubleClickHook);  
    
   return;
 }
@@ -808,6 +829,8 @@ void SetNotifications (void)
 void MainLoop (void)
  {
   long signals;
+  struct Window *syswin = 0;
+  struct RastPort *rp = 0;
 
   DoMethod(App, MUIM_Application_Load, MUIV_Application_Load_ENV);  
   SetAttrs (Win, MUIA_Window_Open, TRUE, TAG_END);
@@ -830,6 +853,9 @@ void MainLoop (void)
    }
   DoMethod(App, MUIM_Application_Save, MUIV_Application_Save_ENV);
   SetAttrs (Win, MUIA_Window_Open, FALSE, TAG_END);
+  if(font)
+      TT_CloseFont(font);
+  TT_DoneRastPort(rp);    
   return;
  }
  
@@ -862,9 +888,9 @@ int main(int argc, char *argv[])
                 //if (Plik) Close (Plik);              /* zamknij ewentualnie otwarty plik */
                 if (jo!=0)
                     json_value_free(jo);            
-                if(font)
-                    TT_CloseFont(font);
-                TT_DoneRastPort(rp);              
+                //if(font)
+                  //  TT_CloseFont(font);
+                //TT_DoneRastPort(rp);              
                }
               else
                   printf("Can't build app error\n");                  
