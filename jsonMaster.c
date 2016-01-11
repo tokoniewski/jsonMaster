@@ -31,9 +31,9 @@ struct json_node_state
 };
 																
 Object *Win, *App, *Listview, *String;
-Object *menu_lastload;
+//Object *menu_lastload;
 Object *InfoWin;
-Object *ttf_string=0;
+Object *ttf_string = 0;
 Object *ttf_popup;
 Object *ttbitmap_obj = 0;
 APTR font = 0;
@@ -120,7 +120,6 @@ APTR *init_font(char *name)
     
     font = TT_OpenFont(
             //TT_FontFile, "PROGDIR:AndaleMo.ttf",
-            //TT_FontFile, "PROGDIR:MCTIME.ttf",
             TT_FontFile, name,
             TT_FontSize, 14, 
             TAG_END);
@@ -541,7 +540,7 @@ Object *BuildMenu()
 		TAG_END),                        
 		MUIA_Group_Child, MUI_NewObject(MUIC_Menu,
 			MUIA_Menu_Title, (long)"Prefs",
-			MUIA_Group_Child, (menu_lastload = MUI_NewObject(MUIC_Menuitem,
+			MUIA_Group_Child, (/*menu_lastload =*/ MUI_NewObject(MUIC_Menuitem,
                                 //MUIA_ObjectID, (++i)+PREFSOBJECTID,
 				MUIA_Menuitem_Title, (long)"Save last load folder",
 				//MUIA_Menuitem_Shortcut, (long)"O", 
@@ -715,14 +714,16 @@ long BuildApplication (void)
         MUIA_Application_Description, (long)"simple json files viewer",
         MUIA_Application_Title, (long)"jsonMaster",
         MUIA_Application_Version, (long)"$VER: jsonMaster 1.0 (21.12.2015) BLABLA PRODUCT",*/
+        // ==============================
         MUIA_Application_Menustrip, BuildMenu(),        
+        // ==============================        
         MUIA_Application_Window, Win = MUI_NewObject (MUIC_Window,
                 MUIA_Window_Title, win_title = (long)"jsonMaster c 2014-2016 by BlaBla Corp.",
                 MUIA_Window_ID, 0x50525A4B,
                 MUIA_UserData, OBJ_WINDOW,
                 MUIA_Window_AppWindow, TRUE,
                 MUIA_Window_RootObject, MUI_NewObject(MUIC_Group,
-                // ttf    
+                // ttf    ===========================
                 MUIA_Group_Child, ttbitmap_obj = NewObject (TTBitmapClass->mcc_Class, NULL,
                         //MUIA_FillArea, FALSE,
                         MUIA_Frame, MUIV_Frame_Text,
@@ -731,10 +732,11 @@ long BuildApplication (void)
                         MUIA_UserData, "duap",
                         MUIA_ShortHelp, (long)" UTF display area... ",
                 TAG_END),
+                // ==============================                
                 MUIA_Group_Child, BuildTTFfontReq(),
-        // ==============================================
+                // ==============================================
                 MUIA_Group_Child, BuildJsonFileReq(),
-        // json file select ^^^^^^
+                // json file select ^^^^^^
                 MUIA_Group_Child, MUI_NewObject (MUIC_Group,       /* grupa z przyciskami */
                         MUIA_Group_Horiz, TRUE,
                         MUIA_Group_Child, create_button("\33cExpand", 'e', JM_OBJ_BUTTON_EXPAND),
@@ -742,7 +744,9 @@ long BuildApplication (void)
                         MUIA_Group_Child, create_button("\33cExpand All", 0, JM_OBJ_BUTTON_EXALL),
                         MUIA_Group_Child, create_button("\33cFold All", 0, JM_OBJ_BUTTON_FOLDALL),
                 TAG_END),
+                // ==============================
                 MUIA_Group_Child, Listview = BuildListview(),
+                // ==============================                
                 MUIA_Group_Child, MUI_NewObject (MUIC_Text,        /* pole informacyjne */
                         MUIA_Frame, MUIV_Frame_Text,
                         MUIA_Background, MUII_TextBack,
