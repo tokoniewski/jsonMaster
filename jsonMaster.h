@@ -30,6 +30,11 @@ extern "C" {
 #define JM_OBJ_BUTTON_FOLD      0x601
 #define JM_OBJ_BUTTON_EXALL     0x602
 #define JM_OBJ_BUTTON_FOLDALL   0x603
+    
+#define JM_OBJ_BUTTON_INFO      0x610  
+#define JM_OBJ_BTN_POPUP_JSON   0x611
+    
+#define JM_OBJ_BTN_ABOUT_OK     0x630    
 
 #define   JM_App_Author         "Tomasz Okoniewski - virago/BlaBla"
 #define   JM_App_Base           "JSONMASTER"

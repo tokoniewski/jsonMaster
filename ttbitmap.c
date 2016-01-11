@@ -8,16 +8,16 @@
 //#include <proto/alib.h>
 #include <proto/ttengine.h>
 #include <libraries/ttengine.h>
-
+  
 #define reg(a) __asm(#a)
 
 #include "ttbitmap.h"
+#include "jsonMaster.h"
 
 /* ============== TU ZACZYNA SIË KOD KLASY ====================== */
 /* dane obiektu */
 
 /* metoda AskMinMax */
-
 long mAskMinMax (Class *cl, Object *obj, struct MUIP_AskMinMax *msg)
  {
   DoSuperMethodA (cl, obj, (Msg)msg);
@@ -29,10 +29,8 @@ long mAskMinMax (Class *cl, Object *obj, struct MUIP_AskMinMax *msg)
   msg->MinMaxInfo->MaxHeight += 800;
   return 0;
  }
-
+ 
 /* metoda Draw */
-
-
 long mDraw (Class *cl, Object *obj, struct MUIP_Draw *msg)
 {
   //long dx= 20;
@@ -51,10 +49,10 @@ long mDraw (Class *cl, Object *obj, struct MUIP_Draw *msg)
   GetAttr(MUIA_UserData, obj, (ULONG *)&srctxtptr);
   data->test=srctxtptr;
   //if (srctxtptr) printf(" User Data %s...\n", srctxtptr);
-  
+  //SetAttrs (Info, MUIA_Text_Contents, "drawing... ");  
   if (txt16)
   {
-      SetAttrs (Info, MUIA_Text_Contents, "drawing... ");
+      SetAttrs (findobj(JM_OBJ_BUTTON_INFO, App), MUIA_Text_Contents, "redrawing... ");      
         TT_SetAttrs(rp, TT_Window, _window(obj), TAG_END);
         SetAPen(rp, 2);
         SetDrMd(rp, JAM1);
@@ -90,7 +88,6 @@ long mDraw (Class *cl, Object *obj, struct MUIP_Draw *msg)
 }
 
 /* metoda Setup */
-
 long mSetup (Class *cl, Object *obj, Msg msg)
  {
   struct TTBitmap *data = INST_DATA(cl,obj);
@@ -110,7 +107,6 @@ long mSetup (Class *cl, Object *obj, Msg msg)
  }
 
 /* metoda Cleanup */
-
 long mCleanup (Class *cl, Object *obj, Msg msg)
  {
   struct TTBitmap *data = INST_DATA(cl,obj);
@@ -138,7 +134,6 @@ long mHandleEvent (Class *cl, Object *obj, struct MUIP_HandleEvent *msg)
  }
 
 /* dispatcher */
-
 __saveds long TTBitmapDispatcher (Class *cl reg(a0), Object *obj reg(a2), Msg msg reg(a1))
  {
   switch (msg->MethodID)
@@ -159,4 +154,7 @@ __saveds long TTBitmapDispatcher (Class *cl reg(a0), Object *obj reg(a2), Msg ms
  }
 
 /* ============= KONIEC KODU KLASY =============================*/
+
+
+
 

@@ -2,8 +2,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-
+//#include <proto/muimaster.h>
+#include <libraries/mui.h>
+ 
 #include "utfjson.h"
+#include "jsonMaster.h"
 
 #define JSON_UTF_MAGIC 0x7F
 
@@ -17,7 +20,6 @@ int utf_text_info(char *txt, char esc)
     char *txtptr=0;
     
     bytelen = strlen(txt);    
-    printf("Text data len: %d\n", bytelen);
     
     txtptr=txt;
     while(*txtptr && (licz<bytelen))
@@ -43,7 +45,8 @@ int utf_text_info(char *txt, char esc)
     }            
     //printf("\n");
     charlen=licz;
-    printf("Text char len: %d\n", charlen);
+    sprintf(infochar, "Text data: %d bytes, %d chars", bytelen, charlen);
+    SetAttrs(findobj(JM_OBJ_BUTTON_INFO, App), MUIA_Text_Contents, infochar); 
     return charlen;
 }
 
