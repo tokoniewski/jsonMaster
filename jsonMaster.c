@@ -413,7 +413,7 @@ long DoubleClickHook(Object *info reg(a2))
   // folded... exit
   if (jnode->curjson->type==json_string)
   {
-        printf("String UTF8-16 ...\n");
+        //printf("String UTF8-16 ...\n");
         SetAttrs(ttbitmap_obj, MUIA_UserData, jnode->curjson->u.string.ptr, TAG_END);
         //SetAttrs(ttbitmap_obj, MUIA_Background, MUII_SHADOW, TAG_END);
         txt16 = convert8utf16(jnode->curjson->u.string.ptr, 'z', &lenchar);
@@ -578,7 +578,8 @@ Object *BuildListview()
                 MUIA_Font, MUIV_Font_Fixed,
                 TAG_END),
         MUIA_Listview_DoubleClick, TRUE,
-	MUIA_CycleChain, TRUE,
+        //MUIA_InputMode, MUIV_InputMode_RelVerify,
+        MUIA_CycleChain, TRUE,
         TAG_END);    
     return lv;
 }
@@ -824,7 +825,10 @@ void SetNotifications (void)
    
   DoMethod (Listview, MUIM_Notify, MUIA_Listview_DoubleClick,
         TRUE, findobj(JM_OBJ_BUTTON_INFO, App), 2, MUIM_CallHook, &h_DoubleClickHook);  
-   
+
+  DoMethod (Listview, MUIM_Notify, MUIA_Selected,
+        TRUE, Win, 3, MUIM_Set, MUIA_Window_ActiveObject, Listview); 
+  
   return;
 }
 
