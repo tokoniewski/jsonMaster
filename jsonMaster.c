@@ -779,6 +779,7 @@ long BuildApplication (void)
 
 void SetNotifications (void)
 {
+    
   DoMethod(Win, MUIM_Notify, MUIA_AppMessage, MUIV_EveryTime,
           Win, 3, MUIM_CallHook, &h_appMsgHook, MUIV_TriggerValue);       
     
@@ -826,8 +827,8 @@ void SetNotifications (void)
   DoMethod (Listview, MUIM_Notify, MUIA_Listview_DoubleClick,
         TRUE, findobj(JM_OBJ_BUTTON_INFO, App), 2, MUIM_CallHook, &h_DoubleClickHook);  
 
-  DoMethod (Listview, MUIM_Notify, MUIA_Selected,
-        TRUE, Win, 3, MUIM_Set, MUIA_Window_ActiveObject, Listview); 
+  DoMethod (Listview, MUIM_Notify, MUIA_Listview_ClickColumn,
+        MUIV_EveryTime, Win, 3, MUIM_Set, MUIA_Window_ActiveObject, Listview); 
   
   return;
 }
