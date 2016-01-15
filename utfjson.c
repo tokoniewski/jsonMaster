@@ -6,6 +6,8 @@
 #include <libraries/mui.h>
  
 #include "utfjson.h"
+#include "json.h"
+#include "jsonutil.h"
 #include "jsonMaster.h"
 
 #define JSON_UTF_MAGIC 0x7F
@@ -25,7 +27,7 @@ int utf_text_info(char *txt, char esc)
     while(*txtptr && (licz<bytelen))
     {
         //printf("%c:%hX ", *txtptr, *txtptr);
-        if(*txtptr==JSON_UTF_MAGIC)
+        if(*txtptr==0x5C)
         {           
             txtptr++;                                                  
             licz++;
@@ -60,7 +62,7 @@ int utf8to16(char *utf8z16, short *txt16, char esc)
     
     while(*txtptr)
     {
-        if(*txtptr==JSON_UTF_MAGIC) //0x5C)
+        if(*txtptr==0x5C)
         {
             txtptr++;
             if(*txtptr==esc)
@@ -83,6 +85,40 @@ int utf8to16(char *utf8z16, short *txt16, char esc)
         txt16++;
     }
     printf("\n");
+}
+
+int utf16_esc_rev(char *buffer, int length, char esc)
+{
+    int i=0;
+    while(i<length)
+    {
+        if ((*buffer)==JSON_UTF_MAGIC)
+        {
+            *buffer=0x5C;        // backslash
+            buffer++;
+            if ((*buffer)=='z')
+                *buffer='u';             
+        }
+        buffer++;
+        i++;
+    }        
+}
+
+int json_utf16revert(json_value *js)
+{
+    if (js)
+    {
+        char *nodename;
+        json_value *nn=0;
+        
+        nn=get_next_node(js);
+        while (nn!=0)
+        {    
+            if (nn->type==json_string)
+                utf16_esc_rev(nn->u.string.ptr, nn->u.string.length, 'u');
+            nn=get_next_node(nn);
+        }
+    }
 }
 
 int json_utf16hack(char *buffer, int length, char esc)
@@ -110,3 +146,11 @@ int json_utf16hack(char *buffer, int length, char esc)
     //SetAttrs (Info, MUIA_Text_Contents, infochar);
     //printf("%d chars in json. Esc sequences: %d\n", length, z);
 }
+
+
+
+
+
+
+
+

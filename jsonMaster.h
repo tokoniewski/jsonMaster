@@ -19,7 +19,8 @@ extern "C" {
 #define JM_OBJ_MENU_EXIT        0x500
 #define JM_OBJ_MENU_OPENFILE    0x501
 #define JM_OBJ_MENU_ABOUT       0x502
-
+#define JM_OBJ_MENU_SAVEXML     0x503
+    
 #define JM_OBJ_MENU_EXALL       0x510
 #define JM_OBJ_MENU_EXLEV       0x511
 #define JM_OBJ_MENU_FOLD        0x512
@@ -33,6 +34,10 @@ extern "C" {
     
 #define JM_OBJ_BUTTON_INFO      0x610  
 #define JM_OBJ_BTN_POPUP_JSON   0x611
+
+#define JM_OBJ_BTN_SEARCH_NEXT  0x620
+#define JM_OBJ_BTN_SEARCH_PREV  0x621
+#define JM_OBJ_STR_SEARCH       0x622
     
 #define JM_OBJ_BTN_ABOUT_OK     0x630    
 

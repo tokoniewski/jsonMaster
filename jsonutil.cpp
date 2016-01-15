@@ -52,6 +52,9 @@ json_value *jo=0;
     json_utf16hack(buffer,length, 'z');  //json uft16 magic preparser :)
     
     jo=json_parse(buffer, length);    
+    
+    json_utf16revert(jo);
+    
     //if (jo) rec_info(jo, 1);    
     if (jo)
     {
@@ -93,7 +96,7 @@ char *get_node_name(json_value *j)
 	json_value *j2=0;
 	static char noname[] = "no name";
 	static char object[] = "object";
-	static char nonode[] = "no node";
+	static char nonode[] = "no_node";
 	static char endarray[] = "array end";
 	static char cell[] = "%s[%d]";
 	static char buf[24];

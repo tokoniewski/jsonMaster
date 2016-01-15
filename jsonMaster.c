@@ -74,6 +74,101 @@ void jsontest()
 	}
 }
 
+void json2xml()
+{
+    if (jo)
+    {
+        char *nodename;
+        json_value *nn=0;
+        rec_info(jo, 0);
+        /*
+        nn=get_next_node(jo);
+        while (nn!=0)
+        {
+            //cout << get_node_name(nn) << endl;
+            nodename=get_node_name(nn);
+            //print_node_type(nn);
+            printf(" %s \n", nodename);
+                //printf(" %s\n", get_node_name(nn));
+            if (nn->type==json_integer)
+            {	//printf(" %Ld \n", nn->u.integer);
+
+            }
+            nn=get_next_node(nn);            
+        }*/				
+    }
+}
+
+void xml_info(json_value *jo, int i2)
+{
+    int k;
+ 	 int i,c;
+ 	 json_value *j=jo;
+ 	 if (jo=0)
+                return;
+         //for(k=0; k<i2; k++)
+           //     printf("\t");               
+         if ((j->parent->type)!=json_array)             
+                printf("\n<%s>", get_node_name(j));
+         else
+             printf("\n<element>");
+	 switch (j->type)
+	 {
+	 case json_object :
+             i2++;
+	  	 //cout << "Dlugosc obiektu: "  << j->u.object.length << endl;
+	  	 for(i=0; i<j->u.object.length; i++)
+		 {                    
+                        xml_info(j->u.object.values[i].value, i2);			
+		 }
+                i2--;
+                //printf("\n");                          
+                //for(k=0; k<i2; k++)
+                  //      printf("\t");   
+                //printf("</%s>", get_node_name(j));
+                printf("\n");                
+                break;
+	 case json_string :
+             //utf16_esc_rev(j->u.string.ptr, j->u.string.length, 'u');
+             printf("%s", j->u.string.ptr);    
+             //printf(" STRING ");
+             //printf("</%s>", get_node_name(j));             
+		  break;
+	 case json_integer :
+             printf("%lld", j->u.integer);
+             //printf("</%s>", get_node_name(j));             
+                break;
+	 case json_double :	
+             printf("%f", j->u.dbl);
+             //printf("</%s>", get_node_name(j));             
+		  break;
+	 case json_boolean :	
+             printf("%s", j->u.boolean ? "TRUE" : "FALSE");
+             //printf("</%s>", get_node_name(j));             
+		  break;
+	 case json_array :
+	  	 //cout << "Dlugosc tablicy: "  << j->u.array.length << endl;
+		 c=j->u.array.length;
+		 //if (c>3) c=3;
+	  	 for(i=0; i<c; i++) 		  
+			xml_info(j->u.array.values[i], i2);
+                 //printf("\n");
+		  break;
+	 case json_null :	
+	 	  //cout << " \"NULL\"  " << endl;
+		  break;
+		  default :
+                      ;
+		  //cout << "Not recognize element" << endl;		
+	};
+        //for(k=0; k<i2; k++)
+          //  printf("\t");   
+         if ((j->parent->type)!=json_array)             
+                printf("</%s>", get_node_name(j));
+         else
+             printf("</element>"); 
+}
+
 void json_escape()
 {
 	int i;
@@ -416,13 +511,12 @@ long DoubleClickHook(Object *info reg(a2))
         //printf("String UTF8-16 ...\n");
         SetAttrs(ttbitmap_obj, MUIA_UserData, jnode->curjson->u.string.ptr, TAG_END);
         //SetAttrs(ttbitmap_obj, MUIA_Background, MUII_SHADOW, TAG_END);
-        txt16 = convert8utf16(jnode->curjson->u.string.ptr, 'z', &lenchar);
+        txt16 = convert8utf16(jnode->curjson->u.string.ptr, 'u', &lenchar);
         //SetAttrs (Info, MUIA_Text_Contents, "drawing... "); 
         MUI_Redraw(ttbitmap_obj, MADF_DRAWOBJECT);
         //if (txt16) 
             //DoMethod(ttbitmap_obj, MUIM_Draw, MADF_DRAWOBJECT);
-            //MUI_Redraw(bitmap_obj, MADF_DRAWOBJECT);
-        
+            //MUI_Redraw(bitmap_obj, MADF_DRAWOBJECT);        
         /*if (txt16)
         {
             printf("drawing...\n");
@@ -453,6 +547,16 @@ long close_about(Object* obj,  Msg msg)
         SetAttrs (InfoWin, MUIA_Window_Open, FALSE, TAG_END);
 }
 
+long save_xml(Object* obj,  Msg msg)
+{
+    //printf("saving xml... \n");
+    SetAttrs (findobj(JM_OBJ_BUTTON_INFO, App), MUIA_Text_Contents, "saving xml... ");     
+    //json2xml();
+    printf("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+    xml_info(jo, 0);
+    SetAttrs (findobj(JM_OBJ_BUTTON_INFO, App), MUIA_Text_Contents, "ok... ");      
+}
+
 struct Hook h_ExpandHook = {NULL, NULL, (HOOKFUNC)ExpandHook, NULL, NULL}; 
 struct Hook h_FoldHook = {NULL, NULL, (HOOKFUNC)FoldHook, NULL, NULL}; 
 struct Hook h_DoubleClickHook = {NULL, NULL, (HOOKFUNC)DoubleClickHook, NULL, NULL}; 
@@ -463,6 +567,7 @@ struct Hook h_LiniaDisplayer = {NULL, NULL, (HOOKFUNC)LiniaDisplayer, NULL, NULL
 struct Hook h_CzytajPlik = {NULL, NULL, (HOOKFUNC)CzytajPlik, NULL, NULL};
 struct Hook h_FontLoad = {NULL, NULL, (HOOKFUNC)FontLoad, NULL, NULL};
 struct Hook h_close_about = {NULL, NULL, (HOOKFUNC)close_about, NULL, NULL};
+struct Hook h_save_xml = {NULL, NULL, (HOOKFUNC)save_xml, NULL, NULL};
 
 #define STO150  150
 long appMsgHook(Object *info reg(a2), struct AppMessage **appmsg reg(a1))
@@ -524,7 +629,8 @@ Object *BuildMenu()
     m = MUI_NewObject(MUIC_Menustrip,
 		MUIA_Group_Child, MUI_NewObject(MUIC_Menu,                
 			MUIA_Menu_Title, (long)"File",
-			MUIA_Group_Child, create_menu("Open file", "O", JM_OBJ_MENU_OPENFILE),							                        
+			MUIA_Group_Child, create_menu("Open file", "O", JM_OBJ_MENU_OPENFILE),	
+			MUIA_Group_Child, create_menu("Save as XML", "X", JM_OBJ_MENU_SAVEXML),	
 			MUIA_Group_Child, MUI_MENU_BARLABEL,
 			MUIA_Group_Child, create_menu("About", "?", JM_OBJ_MENU_ABOUT),
 			MUIA_Group_Child, MUI_NewObject(MUIC_Menuitem,
@@ -695,6 +801,30 @@ Object *BuildInfoWin()
     return o;
 }
 
+Object *BuildSearchBar()
+{
+    Object ob = 0;
+        ob = MUI_NewObject (MUIC_Group,
+                MUIA_Group_Horiz, TRUE,
+                MUIA_FrameTitle, (long)"Search",                
+                MUIA_Frame, MUIV_Frame_Group,
+                MUIA_Background, MUII_GroupBack,
+                MUIA_Group_Child, MUI_NewObject (MUIC_String,
+                        //MUIA_ShowMe, FALSE,          
+                        MUIA_Frame, MUIV_Frame_String,
+                        //MUIA_ObjectID, 0x01234567,                                                
+                        MUIA_CycleChain, TRUE,	
+                        MUIA_UserData, JM_OBJ_STR_SEARCH,
+                        MUIA_HorizWeight, 70,
+                        TAG_DONE),
+                MUIA_Group_Child, create_button("\33cPrev", 0, JM_OBJ_BTN_SEARCH_PREV),                        
+                MUIA_Group_Child, create_button("\33cNext", 0, JM_OBJ_BTN_SEARCH_NEXT),
+                TAG_END);
+        SetAttrs(findobj(JM_OBJ_BTN_SEARCH_NEXT, ob), MUIA_HorizWeight, 15, TAG_END);
+        SetAttrs(findobj(JM_OBJ_BTN_SEARCH_PREV, ob), MUIA_HorizWeight, 15, TAG_END);        
+        return ob;
+}
+
 /* Fun GUI */
 long BuildApplication (void)
 {
@@ -748,6 +878,8 @@ long BuildApplication (void)
                 // ==============================
                 MUIA_Group_Child, Listview = BuildListview(),
                 // ==============================                
+                MUIA_Group_Child, BuildSearchBar(),
+                // ==============================                
                 MUIA_Group_Child, MUI_NewObject (MUIC_Text,        /* pole informacyjne */
                         MUIA_Frame, MUIV_Frame_Text,
                         MUIA_Background, MUII_TextBack,
@@ -779,7 +911,9 @@ long BuildApplication (void)
 
 void SetNotifications (void)
 {
-    
+  DoMethod(findobj(JM_OBJ_MENU_SAVEXML, App), MUIM_Notify, MUIA_Menuitem_Trigger, MUIV_EveryTime,
+        App, 2, MUIM_CallHook, &h_save_xml);
+   
   DoMethod(Win, MUIM_Notify, MUIA_AppMessage, MUIV_EveryTime,
           Win, 3, MUIM_CallHook, &h_appMsgHook, MUIV_TriggerValue);       
     
