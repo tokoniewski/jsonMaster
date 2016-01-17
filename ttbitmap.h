@@ -14,6 +14,9 @@
 extern "C" {
 #endif
 
+#define TTBM_FONT_SIZE  0xCAFE0101    
+#define TTBM_FONT_PATH  0xCAFE0102
+    
 extern short *txt16;
 extern int lenchar;
 

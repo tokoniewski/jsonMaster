@@ -26,6 +26,7 @@ extern "C" {
 #define JM_OBJ_MENU_FOLD        0x512
     
 #define JM_OBJ_MENU_SELTTF      0x520
+#define JM_OBJ_MENU_SIZE        0x521
     
 #define JM_OBJ_BUTTON_EXPAND    0x600
 #define JM_OBJ_BUTTON_FOLD      0x601

@@ -547,6 +547,21 @@ long close_about(Object* obj,  Msg msg)
         SetAttrs (InfoWin, MUIA_Window_Open, FALSE, TAG_END);
 }
 
+long font_size(Object* obj, Msg msg)
+{
+    long sizeval = 0;
+    long sizeval2 = 0;
+    
+    GetAttr(MUIA_UserData, obj, &sizeval);
+    GetAttr(TTBM_FONT_SIZE, ttbitmap_obj, &sizeval2);
+    printf("size from menu UserData: %d\n", sizeval);
+    printf("size from ttbitmap get: %d\n", sizeval2);
+    
+    printf("SetAttrs %d \n", SetAttrs(ttbitmap_obj, TTBM_FONT_SIZE, 789, TTBM_FONT_PATH, "test path", TAG_DONE));
+ 
+    SetAttrs(findobj(JM_OBJ_BUTTON_INFO, App), MUIA_Text_Contents, "size change to...");
+}
+
 long save_xml(Object* obj,  Msg msg)
 {
     //printf("saving xml... \n");
@@ -568,6 +583,7 @@ struct Hook h_CzytajPlik = {NULL, NULL, (HOOKFUNC)CzytajPlik, NULL, NULL};
 struct Hook h_FontLoad = {NULL, NULL, (HOOKFUNC)FontLoad, NULL, NULL};
 struct Hook h_close_about = {NULL, NULL, (HOOKFUNC)close_about, NULL, NULL};
 struct Hook h_save_xml = {NULL, NULL, (HOOKFUNC)save_xml, NULL, NULL};
+struct Hook h_font_size = {NULL, NULL, (HOOKFUNC)font_size, NULL, NULL};
 
 #define STO150  150
 long appMsgHook(Object *info reg(a2), struct AppMessage **appmsg reg(a1))
@@ -626,6 +642,9 @@ Object *create_button(char *label, char *control, LONG objid)
 Object *BuildMenu()
 {
     Object *m = 0;
+    int i, mask;
+    char *size[5] = {"10","12","14","16","18"};
+    //int *size2 = *size;
     m = MUI_NewObject(MUIC_Menustrip,
 		MUIA_Group_Child, MUI_NewObject(MUIC_Menu,                
 			MUIA_Menu_Title, (long)"File",
@@ -661,9 +680,30 @@ Object *BuildMenu()
 		TAG_END),                
 		MUIA_Group_Child, MUI_NewObject(MUIC_Menu,
 			MUIA_Menu_Title, (long)"TTF font",
-			MUIA_Group_Child, create_menu("Select UTF-16 .ttf font", "T", JM_OBJ_MENU_SELTTF),                      
+			MUIA_Group_Child, create_menu("Select UTF-16 .ttf font", "T", JM_OBJ_MENU_SELTTF),
+                        MUIA_Group_Child, MUI_NewObject(MUIC_Menu,
+				MUIA_Menu_Title, (long)"Size",      
+                                MUIA_Menuitem_Shortcut, "Z",
+                                //MUIA_ShortHelp, "Select font size",
+                                MUIA_UserData, JM_OBJ_MENU_SIZE,
+                        TAG_END),
+                        //======================
 		TAG_END),                
 	TAG_END);
+        for (i=0; i<5; i++)
+	{                   
+            mask=(1<<(i+0));
+            //size[2] = (int)'0' + i*2;
+            DoMethod(findobj(JM_OBJ_MENU_SIZE, m), MUIM_Family_AddTail,
+                    MUI_NewObject(MUIC_Menuitem,
+                        MUIA_Menuitem_Title, size[i],
+                        //MUIA_Menuitem_Shortcut, '0'+ (i*2),
+                        MUIA_UserData, (ULONG)((i*2) + 10),
+                        MUIA_Menuitem_Checkit, TRUE,
+                        MUIA_Menuitem_Checked, FALSE,        
+                        MUIA_Menuitem_Exclude, 0x01F & ~mask,
+                    TAG_END));  
+        }
     return m;
 }
 
@@ -684,7 +724,6 @@ Object *BuildListview()
                 MUIA_Font, MUIV_Font_Fixed,
                 TAG_END),
         MUIA_Listview_DoubleClick, TRUE,
-        //MUIA_InputMode, MUIV_InputMode_RelVerify,
         MUIA_CycleChain, TRUE,
         TAG_END);    
     return lv;
@@ -781,7 +820,7 @@ Object *BuildInfoWin()
                         Child, Label1("\33c https://github.com/udp/json-parser"), 
                         Child, Label1("\33c " ),                           
                         Child, Label1("\33c thanks to the people"),
-                        Child, Label1("\33c of irc channels #ppa & #appbeta"),
+                        Child, Label1("\33c of irc channel #ppa "),
                         Child, Label1("\33c for your help and good advice"),                          
                         //Child, Label1("\33c " ),                         
                         //Child, Label1("\33c krashan, kaczus, stefkos " ),                        
@@ -822,6 +861,8 @@ Object *BuildSearchBar()
                 TAG_END);
         SetAttrs(findobj(JM_OBJ_BTN_SEARCH_NEXT, ob), MUIA_HorizWeight, 15, TAG_END);
         SetAttrs(findobj(JM_OBJ_BTN_SEARCH_PREV, ob), MUIA_HorizWeight, 15, TAG_END);        
+        SetAttrs(findobj(JM_OBJ_BTN_SEARCH_NEXT, ob), MUIA_Disabled, TRUE, TAG_END);
+        SetAttrs(findobj(JM_OBJ_BTN_SEARCH_PREV, ob), MUIA_Disabled, TRUE, TAG_END);                
         return ob;
 }
 
@@ -911,6 +952,13 @@ long BuildApplication (void)
 
 void SetNotifications (void)
 {
+  int i;
+  for (i=0; i<5; i++)
+    //DoMethod(findobj((ULONG)(10+(i*2)), App), MUIM_Notify, MUIA_Menuitem_Trigger, MUIV_EveryTime,
+      //  findobj((ULONG)(10+(i*2)), App), 4, MUIM_CallHook, &h_font_size, 123, 789);
+    DoMethod(findobj((ULONG)(10+(i*2)), App), MUIM_Notify, MUIA_Menuitem_Trigger, MUIV_EveryTime,
+        ttbitmap_obj, 3, MUIM_Set, TTBM_FONT_SIZE, findobj((ULONG)(10+(i*2)), App));
+    
   DoMethod(findobj(JM_OBJ_MENU_SAVEXML, App), MUIM_Notify, MUIA_Menuitem_Trigger, MUIV_EveryTime,
         App, 2, MUIM_CallHook, &h_save_xml);
    

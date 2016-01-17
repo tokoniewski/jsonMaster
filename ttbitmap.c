@@ -7,6 +7,7 @@
 //#include <proto/dos.h>
 //#include <proto/alib.h>
 #include <proto/ttengine.h>
+#include <proto/utility.h>
 #include <libraries/ttengine.h>
   
 #define reg(a) __asm(#a)
@@ -133,17 +134,58 @@ long mHandleEvent (Class *cl, Object *obj, struct MUIP_HandleEvent *msg)
   return 0;
  }
 
+long TTBitmapGet(Class *cl, Object *obj, struct opGet *msg)
+{
+    struct TTBitmap *data = INST_DATA(cl,obj);
+    
+    switch (msg->opg_AttrID)
+    {
+        case TTBM_FONT_SIZE:
+            
+            *msg->opg_Storage = 123; 
+            return TRUE;
+            
+        default:
+                return DoSuperMethodA (cl, obj, msg);
+    }    
+}
+
+long TTBitmapSet(Class *cl, Object *obj, struct opSet *msg)
+{
+    struct TTBitmap *data = INST_DATA(cl,obj);
+    struct TagItem *tag, *tagptr;
+    int tagcount = 0;
+    int fsize = 0;
+        
+    tagptr = msg->ops_AttrList;
+    while ((tag = NextTagItem(&tagptr)) != NULL)
+    {
+        switch (tag->ti_Tag)
+        {
+            case TTBM_FONT_SIZE:
+                GetAttr(MUIA_UserData, tag->ti_Data, &fsize);
+                printf("Setting Font size to %d\n", fsize);
+                tagcount++;
+                break;
+            case TTBM_FONT_PATH:
+                printf("Setting Font name to %s\n", tag->ti_Data);
+                tagcount++;
+                break;                
+        }
+    }
+    tagcount += DoSuperMethodA(cl, obj, (Msg)msg);
+    return tagcount;
+}
+               
 /* dispatcher */
 __saveds long TTBitmapDispatcher (Class *cl reg(a0), Object *obj reg(a2), Msg msg reg(a1))
  {
   switch (msg->MethodID)
    {
-    case OM_SET:
-        DoSuperMethodA (cl, obj, msg);        
-        return; // printf("set... %s\n", ((struct TTBitmap *)INST_DATA(cl,obj))->test );
-    case OM_GET:
-        DoSuperMethodA (cl, obj, msg);
-        return; // printf("get...\n");
+    case OM_GET:                return (TTBitmapGet(cl, obj, (struct opGet *)msg));      
+    case OM_SET:                return (TTBitmapSet(cl, obj, (struct opSet *)msg));          
+    //case OM_SET:                return DoSuperMethodA (cl, obj, msg);
+    //case OM_GET:                return DoSuperMethodA (cl, obj, msg);
     case MUIM_Setup:              return (mSetup (cl, obj, msg));
     case MUIM_Cleanup:            return (mCleanup (cl, obj, msg));
     case MUIM_AskMinMax:          return (mAskMinMax (cl, obj, (struct MUIP_AskMinMax*)msg));
