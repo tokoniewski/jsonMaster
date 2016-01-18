@@ -562,7 +562,7 @@ long font_size(Object* obj, Msg msg)
     SetAttrs(findobj(JM_OBJ_BUTTON_INFO, App), MUIA_Text_Contents, "size change to...");
 }
 
-long save_xml(Object* obj,  Msg msg)
+long save_xml(Object* obj, Msg msg)
 {
     //printf("saving xml... \n");
     SetAttrs (findobj(JM_OBJ_BUTTON_INFO, App), MUIA_Text_Contents, "saving xml... ");     
@@ -570,6 +570,12 @@ long save_xml(Object* obj,  Msg msg)
     printf("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
     xml_info(jo, 0);
     SetAttrs (findobj(JM_OBJ_BUTTON_INFO, App), MUIA_Text_Contents, "ok... ");      
+}
+long test(Object* obj, long *x reg(a1))
+{
+    printf("test hook... %d \n", *x);
+    //SetAttrs(ttbitmap_obj, TTBM_FONT_SIZE, 345, TAG_DONE);
+    //DoMethod(ttbitmap_obj, MUIM_Set, TTBM_FONT_SIZE, *x, TAG_DONE);
 }
 
 struct Hook h_ExpandHook = {NULL, NULL, (HOOKFUNC)ExpandHook, NULL, NULL}; 
@@ -584,6 +590,7 @@ struct Hook h_FontLoad = {NULL, NULL, (HOOKFUNC)FontLoad, NULL, NULL};
 struct Hook h_close_about = {NULL, NULL, (HOOKFUNC)close_about, NULL, NULL};
 struct Hook h_save_xml = {NULL, NULL, (HOOKFUNC)save_xml, NULL, NULL};
 struct Hook h_font_size = {NULL, NULL, (HOOKFUNC)font_size, NULL, NULL};
+struct Hook h_test = {NULL, NULL, (HOOKFUNC)test, NULL, NULL};
 
 #define STO150  150
 long appMsgHook(Object *info reg(a2), struct AppMessage **appmsg reg(a1))
@@ -965,7 +972,8 @@ void SetNotifications (void)
         App, 2, MUIM_CallHook, &h_save_xml);
   
   DoMethod(findobj(JM_OBJ_LVIEW_LIST, Listview), MUIM_Notify, MUIA_List_Active, MUIV_EveryTime,
-        ttbitmap_obj, 3, MUIM_Set, TTBM_FONT_SIZE, MUIV_TriggerValue);
+        ttbitmap_obj, 3, MUIM_CallHook, &h_test, MUIV_TriggerValue);
+        //ttbitmap_obj, 3, MUIM_Set, TTBM_FONT_SIZE, MUIV_TriggerValue);
    
   DoMethod(Win, MUIM_Notify, MUIA_AppMessage, MUIV_EveryTime,
           Win, 3, MUIM_CallHook, &h_appMsgHook, MUIV_TriggerValue);       
