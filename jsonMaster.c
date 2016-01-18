@@ -712,7 +712,9 @@ Object *BuildListview()
     Object lv = 0;
     lv = MUI_NewObject(MUIC_Listview,
         MUIA_Listview_Input, TRUE,                        /* lista tylko do odczytu - bez kursora */
+        MUIA_UserData, JM_OBJ_LVIEW,                        
         MUIA_Listview_List, MUI_NewObject (MUIC_List,
+                MUIA_UserData, JM_OBJ_LVIEW_LIST,
                 MUIA_List_ConstructHook, (long)&h_LiniaConstructor,
                 MUIA_List_DestructHook, (long)&h_LiniaDestructor,
                 MUIA_List_DisplayHook, (long)&h_LiniaDisplayer,
@@ -961,6 +963,9 @@ void SetNotifications (void)
     
   DoMethod(findobj(JM_OBJ_MENU_SAVEXML, App), MUIM_Notify, MUIA_Menuitem_Trigger, MUIV_EveryTime,
         App, 2, MUIM_CallHook, &h_save_xml);
+  
+  DoMethod(findobj(JM_OBJ_LVIEW_LIST, Listview), MUIM_Notify, MUIA_List_Active, MUIV_EveryTime,
+        ttbitmap_obj, 3, MUIM_Set, TTBM_FONT_SIZE, MUIV_TriggerValue);
    
   DoMethod(Win, MUIM_Notify, MUIA_AppMessage, MUIV_EveryTime,
           Win, 3, MUIM_CallHook, &h_appMsgHook, MUIV_TriggerValue);       
