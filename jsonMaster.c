@@ -573,10 +573,47 @@ long save_xml(Object* obj, Msg msg)
 }
 long test(Object* obj, long *x reg(a1))
 {
+    int h = 0;
     printf("test hook... %d \n", *x);
+    GetAttr(MUIA_Window_Height, Win, &h);
+    printf("height... %d \n", h);    
     //SetAttrs(ttbitmap_obj, TTBM_FONT_SIZE, 345, TAG_DONE);
     //DoMethod(ttbitmap_obj, MUIM_Set, TTBM_FONT_SIZE, *x, TAG_DONE);
 }
+
+long logger_hook(Object* obj, long *x reg(a1))
+{
+    printf("logger hook: TAG[%s] Value[%d] \n", *x++, *x);
+}
+
+long search_hook(Object* obj, long *x reg(a1))
+{
+    json_value *js = jo;
+    int len = 0;
+    
+    if (*x == 0)
+        return 0;
+    len = strlen(*x);
+    if (len == 0) 
+        return 0;
+    printf("serach hook: Value[%s] len:%d\n", *x, len);
+
+    if (js)
+    {
+        char *nodename;
+        json_value *nn=0;
+        
+        nn=get_next_node(js);
+        while (nn!=0)
+        {    
+            if (nn->type==json_string)             
+                if (strncmp(nn->u.string.ptr, *x, len)==0)
+                        printf(" %s \n", get_node_name(nn));   
+            nn=get_next_node(nn);
+        }
+    }
+}
+
 
 struct Hook h_ExpandHook = {NULL, NULL, (HOOKFUNC)ExpandHook, NULL, NULL}; 
 struct Hook h_FoldHook = {NULL, NULL, (HOOKFUNC)FoldHook, NULL, NULL}; 
@@ -591,6 +628,8 @@ struct Hook h_close_about = {NULL, NULL, (HOOKFUNC)close_about, NULL, NULL};
 struct Hook h_save_xml = {NULL, NULL, (HOOKFUNC)save_xml, NULL, NULL};
 struct Hook h_font_size = {NULL, NULL, (HOOKFUNC)font_size, NULL, NULL};
 struct Hook h_test = {NULL, NULL, (HOOKFUNC)test, NULL, NULL};
+struct Hook h_logger_hook = {NULL, NULL, (HOOKFUNC)logger_hook, NULL, NULL};
+struct Hook h_search_hook = {NULL, NULL, (HOOKFUNC)search_hook, NULL, NULL};
 
 #define STO150  150
 long appMsgHook(Object *info reg(a2), struct AppMessage **appmsg reg(a1))
@@ -870,8 +909,8 @@ Object *BuildSearchBar()
                 TAG_END);
         SetAttrs(findobj(JM_OBJ_BTN_SEARCH_NEXT, ob), MUIA_HorizWeight, 15, TAG_END);
         SetAttrs(findobj(JM_OBJ_BTN_SEARCH_PREV, ob), MUIA_HorizWeight, 15, TAG_END);        
-        SetAttrs(findobj(JM_OBJ_BTN_SEARCH_NEXT, ob), MUIA_Disabled, TRUE, TAG_END);
-        SetAttrs(findobj(JM_OBJ_BTN_SEARCH_PREV, ob), MUIA_Disabled, TRUE, TAG_END);                
+        //SetAttrs(findobj(JM_OBJ_BTN_SEARCH_NEXT, ob), MUIA_Disabled, TRUE, TAG_END);
+        //SetAttrs(findobj(JM_OBJ_BTN_SEARCH_PREV, ob), MUIA_Disabled, TRUE, TAG_END);                
         return ob;
 }
 
@@ -900,9 +939,11 @@ long BuildApplication (void)
         // ==============================        
         MUIA_Application_Window, Win = MUI_NewObject (MUIC_Window,
                 MUIA_Window_Title, win_title = (long)"jsonMaster c 2014-2016 by BlaBla Corp.",
-                MUIA_Window_ID, 0x50525A4B,
+                //MUIA_Window_ID, 0x50525A4B,
                 MUIA_UserData, OBJ_WINDOW,
                 MUIA_Window_AppWindow, TRUE,
+                MUIA_Window_Height, MUIV_Window_Height_Screen(75),      // remove windowId
+                MUIA_Window_Width, MUIV_Window_Width_Screen(50),                
                 MUIA_Window_RootObject, MUI_NewObject(MUIC_Group,
                 // ttf    ===========================
                 MUIA_Group_Child, ttbitmap_obj = NewObject (TTBitmapClass->mcc_Class, NULL,
@@ -962,6 +1003,17 @@ long BuildApplication (void)
 void SetNotifications (void)
 {
   int i;
+  
+  DoMethod(findobj(JM_OBJ_STR_SEARCH, Win), MUIM_Notify, MUIA_String_Acknowledge, MUIV_EveryTime,
+          Win, 3, MUIM_CallHook, &h_search_hook, MUIV_TriggerValue);
+  
+        // NOT WORK
+  DoMethod(Win, MUIM_Notify, MUIA_Window_Width, MUIV_EveryTime,
+        Win, 4, MUIM_CallHook, &h_logger_hook, "MUIA_Window_Width", MUIV_TriggerValue);
+  
+  //DoMethod(Win, MUIM_Notify, MUIA_Window_Width, MUIV_EveryTime,
+    //    Win, 3, MUIM_Set, MUIA_Window_Height, MUIV_TriggerValue);          
+  
   for (i=0; i<5; i++)
     //DoMethod(findobj((ULONG)(10+(i*2)), App), MUIM_Notify, MUIA_Menuitem_Trigger, MUIV_EveryTime,
       //  findobj((ULONG)(10+(i*2)), App), 4, MUIM_CallHook, &h_font_size, 123, 789);
