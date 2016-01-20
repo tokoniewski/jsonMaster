@@ -586,10 +586,42 @@ long logger_hook(Object* obj, long *x reg(a1))
     printf("logger hook: TAG[%s] Value[%d] \n", *x++, *x);
 }
 
+int next_selected_flag = 0;
+
+long next_selected()
+{
+    long act = 0;
+    long pos = 0;
+    
+    if (next_selected_flag)
+    {
+        pos = MUIV_List_NextSelected_Start;
+        next_selected_flag = 0;
+    }
+    DoMethod(findobj(JM_OBJ_LVIEW_LIST, Listview), MUIM_List_NextSelected, &pos);
+    if (pos != MUIV_List_NextSelected_End)
+        SetAttrs(findobj(JM_OBJ_LVIEW_LIST, Listview), MUIA_List_Active, pos, TAG_DONE);
+}
+
+long prev_next_search_hook(Object* obj, int *x reg(a1))
+{
+    switch (*x)
+    {
+        case JM_OBJ_BTN_SEARCH_NEXT:
+            next_selected();
+            printf(" Next!\n");
+            break;
+        case JM_OBJ_BTN_SEARCH_PREV:
+            printf(" Prev!\n");
+            break;             
+    }
+}
+
 long search_hook(Object* obj, long *x reg(a1))
 {
+    int i, len = 0;
+    json_value *nn = 0;
     json_value *js = jo;
-    int len = 0;
     
     if (*x == 0)
         return 0;
@@ -597,21 +629,101 @@ long search_hook(Object* obj, long *x reg(a1))
     if (len == 0) 
         return 0;
     printf("serach hook: Value[%s] len:%d\n", *x, len);
+    
+    //search_all_in_json(js, *x);   
+    //nn = js;
+    //while (nn!=0)
+        //nn = search_next_in_json(nn, *x);
+    i = 0;
+    while(i!=-1)
+        i = search_next_in_list(i, *x, 1);
+    next_selected_flag = 1;
+}
 
-    if (js)
+long search_next_in_list(int p, char *x, int sel)
+{
+    long i;
+    struct json_node_state *jnode = 0;
+    json_value *js = 0;
+    int len = strlen(x);
+    
+    for(;;p++)
     {
-        char *nodename;
-        json_value *nn=0;
-        
+        DoMethod(findobj(JM_OBJ_LVIEW_LIST, Listview), MUIM_List_GetEntry, p, &jnode);
+        if (jnode == NULL)
+            return -1;        
+        if(jnode->curjson == NULL) 
+            return -1;
+        else
+            js = jnode->curjson;
+        if (js->type==json_string)
+            if (strncmp(js->u.string.ptr, x, len)==0)
+            {
+                printf(" %s %d %s\n", get_node_name(js), p, js->u.string.ptr);
+                if (sel)
+                    DoMethod(findobj(JM_OBJ_LVIEW_LIST, Listview), MUIM_List_Select, p, MUIV_List_Select_On, NULL);
+                return ++p;
+            }
+    }    
+    return -1;    
+    
+}
+
+long get_json_poz_on_list(json_value *js)
+{
+    int i;
+    struct json_node_state *jnode = 0;
+    for(i=0;;i++)
+    {
+        DoMethod(findobj(JM_OBJ_LVIEW_LIST, Listview), MUIM_List_GetEntry, i, &jnode);
+        if (jnode == NULL)
+            return -1;        
+        if(js == jnode->curjson)
+            return i;
+    }    
+    return -1;
+}
+
+json_value *search_next_in_json(json_value *js, char *x)
+{
+    int len = strlen(x);
+    json_value *nn=0;
+    int d = 0;
+    if (js)
+    {       
         nn=get_next_node(js);
         while (nn!=0)
         {    
             if (nn->type==json_string)             
-                if (strncmp(nn->u.string.ptr, *x, len)==0)
-                        printf(" %s \n", get_node_name(nn));   
+                if (strncmp(nn->u.string.ptr, x, len)==0)
+                {
+                        printf(" %s %d %s\n", get_node_name(nn), get_json_poz_on_list(nn), nn->u.string.ptr);   
+                        break;
+                }
+            nn=get_next_node(nn);
+        }
+        return get_next_node(nn);
+    }
+    return 0;
+}
+
+long search_all_in_json(json_value *js, char *x)
+{
+    int len = strlen(x);
+    json_value *nn=0;
+    int d = 0;
+    if (js)
+    {       
+        nn=get_next_node(js);
+        while (nn!=0)
+        {    
+            if (nn->type==json_string)             
+                if (strncmp(nn->u.string.ptr, x, len)==0)                    
+                        printf(" %d %s %d %s\n", ++d, get_node_name(nn),  get_json_poz_on_list(nn), nn->u.string.ptr);   
             nn=get_next_node(nn);
         }
     }
+    return d;
 }
 
 
@@ -630,6 +742,7 @@ struct Hook h_font_size = {NULL, NULL, (HOOKFUNC)font_size, NULL, NULL};
 struct Hook h_test = {NULL, NULL, (HOOKFUNC)test, NULL, NULL};
 struct Hook h_logger_hook = {NULL, NULL, (HOOKFUNC)logger_hook, NULL, NULL};
 struct Hook h_search_hook = {NULL, NULL, (HOOKFUNC)search_hook, NULL, NULL};
+struct Hook h_prev_next_search_hook = {NULL, NULL, (HOOKFUNC)prev_next_search_hook, NULL, NULL};
 
 #define STO150  150
 long appMsgHook(Object *info reg(a2), struct AppMessage **appmsg reg(a1))
@@ -1002,8 +1115,19 @@ long BuildApplication (void)
 
 void SetNotifications (void)
 {
-  int i;
+  int i;  
+  //DoMethod(findobj(JM_OBJ_STR_SEARCH, Win), MUIM_Notify, MUIA_String_Acknowledge, MUIV_EveryTime,  
+    //      findobj(JM_OBJ_BTN_SEARCH_NEXT, Win), 3, MUIM_Set, MUIA_Disabled, FALSE);
   
+  //DoMethod(findobj(JM_OBJ_STR_SEARCH, Win), MUIM_Notify, MUIA_String_Acknowledge, MUIV_EveryTime,  
+    //      findobj(JM_OBJ_BTN_SEARCH_PREV, Win), 3, MUIM_Set, MUIA_Disabled, FALSE);  
+  
+   DoMethod(findobj(JM_OBJ_BTN_SEARCH_PREV, Win), MUIM_Notify, MUIA_Pressed, TRUE, 
+          Win, 3, MUIM_CallHook, &h_prev_next_search_hook, JM_OBJ_BTN_SEARCH_PREV);
+   
+   DoMethod(findobj(JM_OBJ_BTN_SEARCH_NEXT, Win), MUIM_Notify, MUIA_Pressed, TRUE, 
+          Win, 3, MUIM_CallHook, &h_prev_next_search_hook, JM_OBJ_BTN_SEARCH_NEXT);
+   
   DoMethod(findobj(JM_OBJ_STR_SEARCH, Win), MUIM_Notify, MUIA_String_Acknowledge, MUIV_EveryTime,
           Win, 3, MUIM_CallHook, &h_search_hook, MUIV_TriggerValue);
   
