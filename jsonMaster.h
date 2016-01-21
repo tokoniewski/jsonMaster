@@ -8,6 +8,8 @@
 #ifndef JSONMASTER_H
 #define	JSONMASTER_H
 
+#define OBJ_WINDOW  123456      /* identyfikator przydatny do odszukania obiektu */
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
@@ -44,6 +46,8 @@ extern "C" {
 #define JM_OBJ_STR_SEARCH       0x622
     
 #define JM_OBJ_BTN_ABOUT_OK     0x630    
+
+#define JM_DEFAULT_FONT_SIZE    14    
 
 #define   JM_App_Author         "Tomasz Okoniewski - virago/BlaBla"
 #define   JM_App_Base           "JSONMASTER"

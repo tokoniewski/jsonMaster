@@ -5,6 +5,7 @@
  * Created on 21 styczeń 2016, 13:15
  */
 
+
 #ifndef WINGUI_H
 #define	WINGUI_H
 
@@ -18,8 +19,9 @@ Object *create_button(char *label, char *control, LONG objid);
 Object *create_menu(char *label, char *control, LONG objid);
 Object *BuildInfoWin();
 Object *BuildSearchBar();
-Object *BuildMenu()
-
+Object *BuildMenu();
+Object *BuildTTFfontReq();
+Object *BuildJsonFileReq();
 
 #ifdef	__cplusplus
 }

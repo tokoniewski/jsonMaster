@@ -2,10 +2,19 @@
 #include <libraries/mui.h>
 //#include "proto/muimaster.h"
 #include <libraries/gadtools.h>
+#include <libraries/asl.h>
+
 
 #include "jsonMaster.h"
 #include "wingui.h"
 
+extern Object *ttf_popup;
+extern Object *ttf_string;
+extern Object *String;
+
+extern struct Hook h_LiniaConstructor;
+extern struct Hook h_LiniaDestructor;
+extern struct Hook h_LiniaDisplayer;
 
 Object *create_menu(char *label, char *control, LONG objid)
 {
@@ -152,7 +161,7 @@ Object *BuildMenu()
 			MUIA_Group_Child, create_menu("Select UTF-16 .ttf font", "T", JM_OBJ_MENU_SELTTF),
                         MUIA_Group_Child, MUI_NewObject(MUIC_Menu,
 				MUIA_Menu_Title, (long)"Size",      
-                                MUIA_Menuitem_Shortcut, "Z",
+                                MUIA_Menuitem_Shortcut, (char *)"Z",
                                 //MUIA_ShortHelp, "Select font size",
                                 MUIA_UserData, JM_OBJ_MENU_SIZE,
                         TAG_END),
@@ -173,8 +182,98 @@ Object *BuildMenu()
                         MUIA_Menuitem_Exclude, 0x01F & ~mask,
                     TAG_END));  
         }
+        SetAttrs(findobj(JM_DEFAULT_FONT_SIZE, m), MUIA_Menuitem_Checked, TRUE);
     return m;
 }
+
+Object *BuildTTFfontReq()
+{
+    Object *o = 0;
+    o = MUI_NewObject (MUIC_Group,
+      MUIA_Group_Horiz, TRUE,
+      MUIA_Group_Child, MUI_NewObject (MUIC_Text,
+       MUIA_Text_Contents, (long)"\33rTTF Font",
+       MUIA_Frame, MUIV_Frame_String,
+       MUIA_FramePhantomHoriz, TRUE,
+       MUIA_HorizWeight, 0,
+      TAG_END),
+      MUIA_Group_Child, ttf_popup = MUI_NewObject (MUIC_Popasl,
+        //MUIA_ShowMe, TRUE,      
+        MUIA_Popstring_String, ttf_string = MUI_NewObject (MUIC_String,
+                //MUIA_ShowMe, FALSE,          
+                MUIA_Frame, MUIV_Frame_String,
+                MUIA_ObjectID, 0x01234567,                                                
+                MUIA_CycleChain, TRUE,		
+        TAG_END),
+        MUIA_Popstring_Button, MUI_NewObject (MUIC_Image,
+                MUIA_Image_Spec, MUII_PopFile,
+                MUIA_ShortHelp, (long)" Select ttf font ",
+                MUIA_Image_FontMatch, TRUE,
+                MUIA_Frame, MUIV_Frame_ImageButton,
+                MUIA_InputMode, MUIV_InputMode_RelVerify,
+		MUIA_CycleChain, TRUE,
+       TAG_END),
+      TAG_END),      
+     TAG_END);
+    return o;
+}
+
+Object *BuildJsonFileReq()
+{
+    Object *o = 0;
+    o = MUI_NewObject(MUIC_Group,
+        MUIA_Group_Horiz, TRUE,
+        MUIA_Group_Child, MUI_NewObject(MUIC_Text,
+                MUIA_Text_Contents, (long)"\33rFile",
+                MUIA_Frame, MUIV_Frame_String,
+                MUIA_FramePhantomHoriz, TRUE,
+                MUIA_HorizWeight, 0,
+        TAG_END),      
+        MUIA_Group_Child, /*jsonload_popup =*/ MUI_NewObject(MUIC_Popasl,
+                MUIA_UserData, JM_OBJ_BTN_POPUP_JSON,
+                MUIA_Popasl_Type, ASL_FileRequest,          
+                MUIA_Popstring_String, String = MUI_NewObject(MUIC_String,
+                        MUIA_Frame, MUIV_Frame_String,
+                        MUIA_ObjectID, 0x01234568,         
+                        MUIA_CycleChain, TRUE,		
+                TAG_END),
+                MUIA_Popstring_Button, MUI_NewObject(MUIC_Image,
+                        MUIA_Image_Spec, MUII_PopFile,
+                        MUIA_ShortHelp, (long)" Select json file ;-) ",
+                        MUIA_Image_FontMatch, TRUE,
+                        MUIA_Frame, MUIV_Frame_ImageButton,
+                        MUIA_InputMode, MUIV_InputMode_RelVerify,
+                        MUIA_CycleChain, TRUE,
+                TAG_END),
+        TAG_END),
+    TAG_END);
+    return o;
+}
+
+Object *BuildListview()
+{
+    Object lv = 0;
+    lv = MUI_NewObject(MUIC_Listview,
+        MUIA_Listview_Input, TRUE,                        /* lista tylko do odczytu - bez kursora */
+        MUIA_UserData, JM_OBJ_LVIEW,                        
+        MUIA_Listview_List, MUI_NewObject (MUIC_List,
+                MUIA_UserData, JM_OBJ_LVIEW_LIST,
+                MUIA_List_ConstructHook, (long)&h_LiniaConstructor,
+                MUIA_List_DestructHook, (long)&h_LiniaDestructor,
+                MUIA_List_DisplayHook, (long)&h_LiniaDisplayer,
+                //MUIA_List_ConstructHook, MUIV_List_ConstructHook_String,
+                //MUIA_List_DestructHook, MUIV_List_DestructHook_String,
+                MUIA_List_Format, (long)"BAR PREPARSE=\33r,BAR MAXWIDTH=-1,,PREPARSE=\33r",
+                MUIA_List_Title, TRUE,
+                MUIA_Frame, MUIV_Frame_ReadList,
+                MUIA_Font, MUIV_Font_Fixed,
+                TAG_END),
+        MUIA_Listview_DoubleClick, TRUE,
+        MUIA_CycleChain, TRUE,
+        TAG_END);    
+    return lv;
+}
+
 
 
 
