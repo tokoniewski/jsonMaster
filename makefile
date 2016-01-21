@@ -9,8 +9,8 @@ NAZWA = jsonMaster
 
 # z -noixemul nie dziala "%lld"
 
-p1: $(NAZWA).o jsonutil.o json.o utfjson.o ttbitmap.o
-	$(CPP) $(NAZWA).o json.o jsonutil.o utfjson.o ttbitmap.o -o $(NAZWA).exe
+p1: $(NAZWA).o jsonutil.o json.o utfjson.o ttbitmap.o wingui.o
+	$(CPP) -s $(NAZWA).o json.o jsonutil.o utfjson.o ttbitmap.o wingui.o -o $(NAZWA).exe
 	
 p2: p1
 	rm /cygdrive/p/$(NAZWA)2	
@@ -29,6 +29,9 @@ utfjson.o: utfjson.c utfjson.h
 
 ttbitmap.o: ttbitmap.c ttbitmap.h
 	$(CC) ttbitmap.c -c -o ttbitmap.o
+	
+wingui.o:   wingui.c wingui.h
+	$(CC) wingui.c -c -o wingui.o
 
 $(NAZWA).o: $(NAZWA).c $(NAZWA).h
 	$(CC) $(NAZWA).c -noixemul -c -o $(NAZWA).o
