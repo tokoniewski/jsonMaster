@@ -16,9 +16,9 @@
 #include "jsonutil.h"
 #include "utfjson.h"
 #include "ttbitmap.h"
+#include "wingui.h"
 
 #define reg(a) __asm(#a)
-#define OBJ_WINDOW  123456      /* identyfikator przydatny do odszukania obiektu */
                                 /* okna w funkcji MainLoop() i SetNotifications */
 //https://github.com/filip-maryjanski/NVM
  								
@@ -209,23 +209,31 @@ void parse_insert(char *nazwa_pliku)
       SetAttrs(findobj(JM_OBJ_BUTTON_INFO, App), MUIA_Text_Contents, "parser error... ");
 } 
 
-APTR *init_font(char *name)
+APTR *init_font(char *name, int size)
 {
     APTR font = 0;
     
     font = TT_OpenFont(
             //TT_FontFile, "PROGDIR:AndaleMo.ttf",
             TT_FontFile, name,
-            TT_FontSize, 14, 
+            TT_FontSize, size, 
             TAG_END);
     return font;
 }
 
 long FontLoad(Object *filestring reg(a2), Object **listview reg(a1))
 {
+    FontLoad_noHook(get_font_size_from_menu());
+}
+
+long FontLoad_noHook(int size)
+{
     char *font_name = 0;
     APTR oldfont = font;
     struct Window *syswin = 0;
+    
+    if (size==0)
+        size = JM_DEFAULT_FONT_SIZE;
     
     GetAttr (MUIA_String_Contents, ttf_string , (long*)&font_name);
     GetAttr(MUIA_Window_Window, Win, &syswin);
@@ -233,7 +241,7 @@ long FontLoad(Object *filestring reg(a2), Object **listview reg(a1))
     //printf("FOnt name: %s \n", font_name);
     SetAttrs(findobj(JM_OBJ_BUTTON_INFO, App), MUIA_Text_Contents, font_name);    
     //font = 0;    
-    font = init_font(font_name);
+    font = init_font(font_name, size);
     if (font)
     {
         if (syswin->RPort)
@@ -241,7 +249,8 @@ long FontLoad(Object *filestring reg(a2), Object **listview reg(a1))
         //printf("OK. Font ready\n");
         SetAttrs(findobj(JM_OBJ_BUTTON_INFO, App), MUIA_Text_Contents, "OK. Font ready");
         if(oldfont)
-                TT_CloseFont(oldfont);        
+                TT_CloseFont(oldfont);  
+        MUI_Redraw(ttbitmap_obj, MADF_DRAWOBJECT);        
     }
     else
     {
@@ -466,7 +475,7 @@ long fold(Object *info)
   return 0;
  }
 
-int convert8utf16(char *utf8, char esc, int *lenchar16)
+int convert8utf16(char *utf8, char esc, int *lenchar16) //u must dealloc after use
 {
     short *txt16 = 0;
     int txt16len = 0;
@@ -541,25 +550,53 @@ long DoubleClickHook(Object *info reg(a2))
 	//printf(" Klik! :P\n"); 
 	return 0;	
 }
- 
+
 long close_about(Object* obj,  Msg msg)
 {
         SetAttrs (InfoWin, MUIA_Window_Open, FALSE, TAG_END);
 }
-
-long font_size(Object* obj, Msg msg)
+int setget_test()
 {
-    long sizeval = 0;
-    long sizeval2 = 0;
+    //GetAttr(MUIA_UserData, obj, &sizeval);
+    //GetAttr(TTBM_FONT_SIZE, ttbitmap_obj, &sizeval2);
+    //printf("size from menu UserData: %d\n", sizeval);
+    //printf("size from ttbitmap get: %d\n", sizeval2);    
+    //printf("SetAttrs %d \n", SetAttrs(ttbitmap_obj, TTBM_FONT_SIZE, 789, TTBM_FONT_PATH, "test path", TAG_END));
+    //DoMethod(ttbitmap_obj, TTBM_FONT_SIZE, 789);
+    //DoMethod(ttbitmap_obj, TTBM_FONT_PATH, "test path");
+}
+
+long get_font_size_from_menu()
+{
+    int i;
+    int ischeck = 0;
+    Object *mpoz = 0;
+    Object *menusize = findobj(JM_OBJ_MENU_SIZE, App);
     
-    GetAttr(MUIA_UserData, obj, &sizeval);
-    GetAttr(TTBM_FONT_SIZE, ttbitmap_obj, &sizeval2);
-    printf("size from menu UserData: %d\n", sizeval);
-    printf("size from ttbitmap get: %d\n", sizeval2);
+    printf("get_font_size_from_menu() START\n");
+    if (menusize)
+        for (i=0; i<5; i++)
+	{           
+            printf("get_font_size_from_menu() %d\n", i);
+            mpoz = 0; mpoz = findobj(10+(i*2), menusize);
+            if (mpoz)
+                GetAttr(MUIA_Menuitem_Checked, mpoz, &ischeck);
+                if (ischeck == TRUE)
+                    return (10+(i*2));
+        }
+    return 0;
+};
+
+long font_size(Object* obj, int *size reg(a1))
+{
+    long sizeval = *size;
+    if(sizeval<10 || sizeval>24)
+        sizeval = JM_DEFAULT_FONT_SIZE;
     
-    printf("SetAttrs %d \n", SetAttrs(ttbitmap_obj, TTBM_FONT_SIZE, 789, TTBM_FONT_PATH, "test path", TAG_DONE));
- 
-    SetAttrs(findobj(JM_OBJ_BUTTON_INFO, App), MUIA_Text_Contents, "size change to...");
+    printf("font size change to... %d\n", *size);
+        
+    FontLoad_noHook(sizeval);       
+    //SetAttrs(findobj(JM_OBJ_BUTTON_INFO, App), MUIA_Text_Contents, "font size change to...");
 }
 
 long save_xml(Object* obj, Msg msg)
@@ -574,9 +611,9 @@ long save_xml(Object* obj, Msg msg)
 long test(Object* obj, long *x reg(a1))
 {
     int h = 0;
-    printf("test hook... %d \n", *x);
-    GetAttr(MUIA_Window_Height, Win, &h);
-    printf("height... %d \n", h);    
+    printf("test hook... line [%d] \n", *x);
+    //GetAttr(MUIA_Window_Height, Win, &h);
+    //printf("height... %d \n", h);    
     //SetAttrs(ttbitmap_obj, TTBM_FONT_SIZE, 345, TAG_DONE);
     //DoMethod(ttbitmap_obj, MUIM_Set, TTBM_FONT_SIZE, *x, TAG_DONE);
 }
@@ -586,21 +623,27 @@ long logger_hook(Object* obj, long *x reg(a1))
     printf("logger hook: TAG[%s] Value[%d] \n", *x++, *x);
 }
 
-int next_selected_flag = 0;
+int last_selected = 0;
 
-long next_selected()
+long next_selected(int prev_selected)
 {
-    long act = 0;
-    long pos = 0;
+    long pos = prev_selected;
+    //if (pos != MUIV_List_NextSelected_End)
+      //  SetAttrs(findobj(JM_OBJ_BTN_SEARCH_NEXT, Win), MUIA_Disabled, FALSE, TAG_END);    
     
-    if (next_selected_flag)
-    {
-        pos = MUIV_List_NextSelected_Start;
-        next_selected_flag = 0;
-    }
+    if (pos == MUIV_List_NextSelected_Start)
+        DoMethod(Win, MUIM_Set, MUIA_Window_ActiveObject, Listview);
+ 
     DoMethod(findobj(JM_OBJ_LVIEW_LIST, Listview), MUIM_List_NextSelected, &pos);
+    printf("pozycja %d %d\n", pos, prev_selected);
     if (pos != MUIV_List_NextSelected_End)
+    {
+        DoMethod(findobj(JM_OBJ_LVIEW_LIST, Listview), MUIM_List_Jump, pos);
         SetAttrs(findobj(JM_OBJ_LVIEW_LIST, Listview), MUIA_List_Active, pos, TAG_DONE);
+    }
+    //else
+      //  SetAttrs(findobj(JM_OBJ_BTN_SEARCH_NEXT, Win), MUIA_Disabled, TRUE, TAG_END);        
+    return pos;
 }
 
 long prev_next_search_hook(Object* obj, int *x reg(a1))
@@ -608,7 +651,7 @@ long prev_next_search_hook(Object* obj, int *x reg(a1))
     switch (*x)
     {
         case JM_OBJ_BTN_SEARCH_NEXT:
-            next_selected();
+            last_selected = next_selected(last_selected);
             printf(" Next!\n");
             break;
         case JM_OBJ_BTN_SEARCH_PREV:
@@ -619,7 +662,7 @@ long prev_next_search_hook(Object* obj, int *x reg(a1))
 
 long search_hook(Object* obj, long *x reg(a1))
 {
-    int i, len = 0;
+    int j, i, len = 0;
     json_value *nn = 0;
     json_value *js = jo;
     
@@ -630,14 +673,25 @@ long search_hook(Object* obj, long *x reg(a1))
         return 0;
     printf("serach hook: Value[%s] len:%d\n", *x, len);
     
+    DoMethod(findobj(JM_OBJ_LVIEW_LIST, Listview), MUIM_List_Select, MUIV_List_Select_All, MUIV_List_Select_Off, NULL);
     //search_all_in_json(js, *x);   
     //nn = js;
     //while (nn!=0)
         //nn = search_next_in_json(nn, *x);
     i = 0;
+    j = 0;
     while(i!=-1)
+    {
         i = search_next_in_list(i, *x, 1);
-    next_selected_flag = 1;
+        if (i!=-1)
+            j++;
+    }
+    printf("found %d pos\n", j);
+    if (j)
+    {
+        last_selected = next_selected(MUIV_List_NextSelected_Start);
+        //SetAttrs(findobj(JM_OBJ_BTN_SEARCH_NEXT, Win), MUIA_Disabled, FALSE, TAG_END);            
+    }
 }
 
 long search_next_in_list(int p, char *x, int sel)
@@ -767,266 +821,6 @@ long appMsgHook(Object *info reg(a2), struct AppMessage **appmsg reg(a1))
 struct Hook h_appMsgHook = {NULL, NULL, (HOOKFUNC)appMsgHook, NULL, NULL};
 // ==================================================
 
-Object *create_menu(char *label, char *control, LONG objid)
-{
-        Object *obj;
-        obj = MUI_NewObject(MUIC_Menuitem,
-                MUIA_Menuitem_Title, (ULONG)label,
-                MUIA_Menuitem_Shortcut, control,
-                MUIA_UserData, objid,                 
-                TAG_END);
-        return obj;
-}
-
-Object *create_button(char *label, char *control, LONG objid)
-{
-        Object *obj;
-        obj = MUI_NewObject (MUIC_Text,       /* przycisk */
-                MUIA_Frame, MUIV_Frame_Button,
-                MUIA_Background, MUII_ButtonBack,
-                MUIA_Font, MUIV_Font_Button,
-                MUIA_Text_Contents, (ULONG)label,
-                MUIA_Text_HiChar, control,
-                MUIA_ControlChar, control,
-                MUIA_InputMode, MUIV_InputMode_RelVerify,
-                MUIA_CycleChain, TRUE,
-                MUIA_UserData, objid,
-        TAG_END);
-        return obj;
-}        
-
- #define MUI_MENU_BARLABEL      MUI_NewObject(MUIC_Menuitem, \
-				MUIA_Menuitem_Title, NM_BARLABEL, \
-                                TAG_END) 
-Object *BuildMenu()
-{
-    Object *m = 0;
-    int i, mask;
-    char *size[5] = {"10","12","14","16","18"};
-    //int *size2 = *size;
-    m = MUI_NewObject(MUIC_Menustrip,
-		MUIA_Group_Child, MUI_NewObject(MUIC_Menu,                
-			MUIA_Menu_Title, (long)"File",
-			MUIA_Group_Child, create_menu("Open file", "O", JM_OBJ_MENU_OPENFILE),	
-			MUIA_Group_Child, create_menu("Save as XML", "X", JM_OBJ_MENU_SAVEXML),	
-			MUIA_Group_Child, MUI_MENU_BARLABEL,
-			MUIA_Group_Child, create_menu("About", "?", JM_OBJ_MENU_ABOUT),
-			MUIA_Group_Child, MUI_NewObject(MUIC_Menuitem,
-				MUIA_Menuitem_Title, NM_BARLABEL,
-			TAG_END),                        
-			MUIA_Group_Child, create_menu("Exit", "Q", JM_OBJ_MENU_EXIT),
-		TAG_END),
-		MUIA_Group_Child, MUI_NewObject(MUIC_Menu,
-			MUIA_Menu_Title, (long)"Json",
-			MUIA_Group_Child, create_menu("Expand all","A", JM_OBJ_MENU_EXALL), 
-			MUIA_Group_Child, create_menu("Expand level", "E", JM_OBJ_MENU_EXLEV),
-			MUIA_Group_Child, create_menu("Fold", "F", JM_OBJ_MENU_FOLD),
-		TAG_END),                        
-		MUIA_Group_Child, MUI_NewObject(MUIC_Menu,
-			MUIA_Menu_Title, (long)"Prefs",
-			MUIA_Group_Child, (/*menu_lastload =*/ MUI_NewObject(MUIC_Menuitem,
-                                //MUIA_ObjectID, (++i)+PREFSOBJECTID,
-				MUIA_Menuitem_Title, (long)"Save last load folder",
-				//MUIA_Menuitem_Shortcut, (long)"O", 
-                                MUIA_Menuitem_Checkit, TRUE,
-                                MUIA_Menuitem_Checked, FALSE,
-                                MUIA_Menuitem_Toggle, TRUE,
-                                MUIA_ObjectID, 0x01234569,                                  
-			TAG_END)),                        
-			MUIA_Group_Child, MUI_NewObject(MUIC_Menuitem,
-				MUIA_Menuitem_Title, (long)"About MUI ",
-			TAG_END),
-		TAG_END),                
-		MUIA_Group_Child, MUI_NewObject(MUIC_Menu,
-			MUIA_Menu_Title, (long)"TTF font",
-			MUIA_Group_Child, create_menu("Select UTF-16 .ttf font", "T", JM_OBJ_MENU_SELTTF),
-                        MUIA_Group_Child, MUI_NewObject(MUIC_Menu,
-				MUIA_Menu_Title, (long)"Size",      
-                                MUIA_Menuitem_Shortcut, "Z",
-                                //MUIA_ShortHelp, "Select font size",
-                                MUIA_UserData, JM_OBJ_MENU_SIZE,
-                        TAG_END),
-                        //======================
-		TAG_END),                
-	TAG_END);
-        for (i=0; i<5; i++)
-	{                   
-            mask=(1<<(i+0));
-            //size[2] = (int)'0' + i*2;
-            DoMethod(findobj(JM_OBJ_MENU_SIZE, m), MUIM_Family_AddTail,
-                    MUI_NewObject(MUIC_Menuitem,
-                        MUIA_Menuitem_Title, size[i],
-                        //MUIA_Menuitem_Shortcut, '0'+ (i*2),
-                        MUIA_UserData, (ULONG)((i*2) + 10),
-                        MUIA_Menuitem_Checkit, TRUE,
-                        MUIA_Menuitem_Checked, FALSE,        
-                        MUIA_Menuitem_Exclude, 0x01F & ~mask,
-                    TAG_END));  
-        }
-    return m;
-}
-
-Object *BuildListview()
-{
-    Object lv = 0;
-    lv = MUI_NewObject(MUIC_Listview,
-        MUIA_Listview_Input, TRUE,                        /* lista tylko do odczytu - bez kursora */
-        MUIA_UserData, JM_OBJ_LVIEW,                        
-        MUIA_Listview_List, MUI_NewObject (MUIC_List,
-                MUIA_UserData, JM_OBJ_LVIEW_LIST,
-                MUIA_List_ConstructHook, (long)&h_LiniaConstructor,
-                MUIA_List_DestructHook, (long)&h_LiniaDestructor,
-                MUIA_List_DisplayHook, (long)&h_LiniaDisplayer,
-                //MUIA_List_ConstructHook, MUIV_List_ConstructHook_String,
-                //MUIA_List_DestructHook, MUIV_List_DestructHook_String,
-                MUIA_List_Format, (long)"BAR PREPARSE=\33r,BAR MAXWIDTH=-1,,PREPARSE=\33r",
-                MUIA_List_Title, TRUE,
-                MUIA_Frame, MUIV_Frame_ReadList,
-                MUIA_Font, MUIV_Font_Fixed,
-                TAG_END),
-        MUIA_Listview_DoubleClick, TRUE,
-        MUIA_CycleChain, TRUE,
-        TAG_END);    
-    return lv;
-}
-
-Object *BuildJsonFileReq()
-{
-    Object *o = 0;
-    o = MUI_NewObject(MUIC_Group,
-        MUIA_Group_Horiz, TRUE,
-        MUIA_Group_Child, MUI_NewObject(MUIC_Text,
-                MUIA_Text_Contents, (long)"\33rFile",
-                MUIA_Frame, MUIV_Frame_String,
-                MUIA_FramePhantomHoriz, TRUE,
-                MUIA_HorizWeight, 0,
-        TAG_END),      
-        MUIA_Group_Child, /*jsonload_popup =*/ MUI_NewObject(MUIC_Popasl,
-                MUIA_UserData, JM_OBJ_BTN_POPUP_JSON,
-                MUIA_Popasl_Type, ASL_FileRequest,          
-                MUIA_Popstring_String, String = MUI_NewObject(MUIC_String,
-                        MUIA_Frame, MUIV_Frame_String,
-                        MUIA_ObjectID, 0x01234568,         
-                        MUIA_CycleChain, TRUE,		
-                TAG_END),
-                MUIA_Popstring_Button, MUI_NewObject(MUIC_Image,
-                        MUIA_Image_Spec, MUII_PopFile,
-                        MUIA_ShortHelp, (long)" Select json file ;-) ",
-                        MUIA_Image_FontMatch, TRUE,
-                        MUIA_Frame, MUIV_Frame_ImageButton,
-                        MUIA_InputMode, MUIV_InputMode_RelVerify,
-                        MUIA_CycleChain, TRUE,
-                TAG_END),
-        TAG_END),
-    TAG_END);
-    return o;
-}
-
-Object *BuildTTFfontReq()
-{
-    Object *o = 0;
-    o = MUI_NewObject (MUIC_Group,
-      MUIA_Group_Horiz, TRUE,
-      MUIA_Group_Child, MUI_NewObject (MUIC_Text,
-       MUIA_Text_Contents, (long)"\33rTTF Font",
-       MUIA_Frame, MUIV_Frame_String,
-       MUIA_FramePhantomHoriz, TRUE,
-       MUIA_HorizWeight, 0,
-      TAG_END),
-      MUIA_Group_Child, ttf_popup = MUI_NewObject (MUIC_Popasl,
-        //MUIA_ShowMe, TRUE,      
-        MUIA_Popstring_String, ttf_string = MUI_NewObject (MUIC_String,
-                //MUIA_ShowMe, FALSE,          
-                MUIA_Frame, MUIV_Frame_String,
-                MUIA_ObjectID, 0x01234567,                                                
-                MUIA_CycleChain, TRUE,		
-        TAG_END),
-        MUIA_Popstring_Button, MUI_NewObject (MUIC_Image,
-                MUIA_Image_Spec, MUII_PopFile,
-                MUIA_ShortHelp, (long)" Select ttf font ",
-                MUIA_Image_FontMatch, TRUE,
-                MUIA_Frame, MUIV_Frame_ImageButton,
-                MUIA_InputMode, MUIV_InputMode_RelVerify,
-		MUIA_CycleChain, TRUE,
-       TAG_END),
-      TAG_END),      
-     TAG_END);
-    return o;
-}
-
-Object *BuildInfoWin()
-{
-    Object *o = 0;
-    o = MUI_NewObject (MUIC_Window,
-        MUIA_Window_Title, (long)"jsonMaster Information",
-        MUIA_Window_ID, 0x50525A4C,
-        MUIA_UserData, OBJ_WINDOW+1,
-        MUIA_Window_RootObject, MUI_NewObject (MUIC_Group,
-                MUIA_Group_Child, MUI_NewObject (MUIC_Group,
-                        MUIA_FrameTitle, (long)"About",
-                        MUIA_Frame, MUIV_Frame_Group,
-                        MUIA_Background, MUII_GroupBack,                
-                        MUIA_Group_Horiz, FALSE,        
-                        MUIA_Group_Child, MUI_NewObject (MUIC_Text,
-                                MUIA_Text_Contents, (long)"\33c\33b json Master", 
-                        TAG_END),                                                
-                        Child, Label1("\33c Version 0.2" ),                        
-                        Child, Label1("\33c copyrights 2014-2016 BlaBla "),
-                        Child, Label1("\33c " ),                         
-                        Child, Label1("\33c Tomasz 'virago' Okoniewski " ),
-                        Child, Label1("\33c virago77@interia.pl" ),                        
-                        Child, Label1("\33c " ),   
-                        Child, Label1("\33c The program uses the library "),
-                        Child, Label1("\33c by James McLaughlin "),                           
-                        Child, Label1("\33c https://github.com/udp/json-parser"), 
-                        Child, Label1("\33c " ),                           
-                        Child, Label1("\33c thanks to the people"),
-                        Child, Label1("\33c of irc channel #ppa "),
-                        Child, Label1("\33c for your help and good advice"),                          
-                        //Child, Label1("\33c " ),                         
-                        //Child, Label1("\33c krashan, kaczus, stefkos " ),                        
-                        //Child, Label1("\33c tygrys, widelec"),                                               
-                        MUIA_Group_Child, /*about_btn =*/ MUI_NewObject (MUIC_Text,
-                                MUIA_UserData, JM_OBJ_BTN_ABOUT_OK,
-                                MUIA_Frame, MUIV_Frame_Button,
-                                MUIA_Background, MUII_ButtonBack,
-                                MUIA_Font, MUIV_Font_Button,                        
-                                MUIA_Text_Contents, (long)"\33cOK",
-                                MUIA_InputMode, MUIV_InputMode_RelVerify,
-                                MUIA_CycleChain, TRUE,   
-                        TAG_END),                        
-                TAG_END),                  
-          TAG_END),
-    TAG_END);    
-    return o;
-}
-
-Object *BuildSearchBar()
-{
-    Object ob = 0;
-        ob = MUI_NewObject (MUIC_Group,
-                MUIA_Group_Horiz, TRUE,
-                MUIA_FrameTitle, (long)"Search",                
-                MUIA_Frame, MUIV_Frame_Group,
-                MUIA_Background, MUII_GroupBack,
-                MUIA_Group_Child, MUI_NewObject (MUIC_String,
-                        //MUIA_ShowMe, FALSE,          
-                        MUIA_Frame, MUIV_Frame_String,
-                        //MUIA_ObjectID, 0x01234567,                                                
-                        MUIA_CycleChain, TRUE,	
-                        MUIA_UserData, JM_OBJ_STR_SEARCH,
-                        MUIA_HorizWeight, 70,
-                        TAG_DONE),
-                MUIA_Group_Child, create_button("\33cPrev", 0, JM_OBJ_BTN_SEARCH_PREV),                        
-                MUIA_Group_Child, create_button("\33cNext", 0, JM_OBJ_BTN_SEARCH_NEXT),
-                TAG_END);
-        SetAttrs(findobj(JM_OBJ_BTN_SEARCH_NEXT, ob), MUIA_HorizWeight, 15, TAG_END);
-        SetAttrs(findobj(JM_OBJ_BTN_SEARCH_PREV, ob), MUIA_HorizWeight, 15, TAG_END);        
-        //SetAttrs(findobj(JM_OBJ_BTN_SEARCH_NEXT, ob), MUIA_Disabled, TRUE, TAG_END);
-        //SetAttrs(findobj(JM_OBJ_BTN_SEARCH_PREV, ob), MUIA_Disabled, TRUE, TAG_END);                
-        return ob;
-}
-
 /* Fun GUI */
 long BuildApplication (void)
 {
@@ -1064,7 +858,7 @@ long BuildApplication (void)
                         MUIA_Frame, MUIV_Frame_Text,
                         MUIA_Background, MUII_TextBack,
                         MUIA_FixHeight, 30,       
-                        MUIA_UserData, "duap",
+                        MUIA_UserData, "dup@",
                         MUIA_ShortHelp, (long)" UTF display area... ",
                 TAG_END),
                 // ==============================                
@@ -1139,10 +933,10 @@ void SetNotifications (void)
     //    Win, 3, MUIM_Set, MUIA_Window_Height, MUIV_TriggerValue);          
   
   for (i=0; i<5; i++)
-    //DoMethod(findobj((ULONG)(10+(i*2)), App), MUIM_Notify, MUIA_Menuitem_Trigger, MUIV_EveryTime,
-      //  findobj((ULONG)(10+(i*2)), App), 4, MUIM_CallHook, &h_font_size, 123, 789);
     DoMethod(findobj((ULONG)(10+(i*2)), App), MUIM_Notify, MUIA_Menuitem_Trigger, MUIV_EveryTime,
-        ttbitmap_obj, 3, MUIM_Set, TTBM_FONT_SIZE, findobj((ULONG)(10+(i*2)), App));
+        findobj((ULONG)(10+(i*2)), App), 3, MUIM_CallHook, &h_font_size, 10+(i*2));
+    //DoMethod(findobj((ULONG)(10+(i*2)), App), MUIM_Notify, MUIA_Menuitem_Trigger, MUIV_EveryTime,
+      //  ttbitmap_obj, 3, MUIM_Set, TTBM_FONT_SIZE, findobj((ULONG)(10+(i*2)), App));
     
   DoMethod(findobj(JM_OBJ_MENU_SAVEXML, App), MUIM_Notify, MUIA_Menuitem_Trigger, MUIV_EveryTime,
         App, 2, MUIM_CallHook, &h_save_xml);
@@ -1219,7 +1013,7 @@ void MainLoop (void)
   //printf("window: %x\n", syswin);
   //printf("rastport: %x\n", rp);
   
-  font = init_font("PROGDIR:AndaleMo.ttf");
+  font = init_font("PROGDIR:AndaleMo.ttf", JM_DEFAULT_FONT_SIZE);
   if (rp) TT_SetFont(rp, font);
 
   while (DoMethod (App, MUIM_Application_NewInput, &signals) !=
@@ -1294,19 +1088,17 @@ int main(int argc, char *argv[])
  }
  
 																            
-																				
-																			
- 
-                                                                       
-																	            
-																				
-																			
-																			
-                                                                       
-																	            
-																				
-																																				
-																								         
-																				
-																																										
-																								
+// =========================================================================================																				
+
+
+// =========================================================================================																				
+
+
+
+// =========================================================================================																				
+
+
+
+// =========================================================================================																				
+
+
