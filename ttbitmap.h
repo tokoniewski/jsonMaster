@@ -21,16 +21,17 @@ extern short *txt16;
 extern int lenchar;
 
 struct TTBitmap
- {
+{
+  int fontsize;
   short **txt16;
   int *lenchar;
   struct Window *syswin;
   APTR  cliphandle;  
-  short DeltaX;
-  short DeltaY;
+  //short DeltaX;
+  //short DeltaY;
   int test;
   //struct MUI_EventHandlerNode EHNode;
- };
+};
 
 __saveds long TTBitmapDispatcher (Class *cl reg(a0), Object *obj reg(a2), Msg msg reg(a1));
 //long TTBitmapDispatcher (Class *cl, Object *obj, Msg msg);

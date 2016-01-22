@@ -51,10 +51,10 @@ extern "C" {
 
 #define   JM_App_Author         "Tomasz Okoniewski - virago/BlaBla"
 #define   JM_App_Base           "JSONMASTER"
-#define   JM_App_Copyright      "c 2014-2016 by BlaBla Corp."
+#define   JM_App_Copyright      "c 2014-2016 by BlaBla group"
 #define   JM_App_Descr          "simple json files viewer"
 #define   JM_App_Title          "jsonMaster"
-#define   JM_App_Version        "$VER: jsonMaster 0.2 (17.01.2016) BLABLA PRODUCT"
+#define   JM_App_Version        "$VER: jsonMaster 0.2 (21.01.2016) BLABLA PRODUCT"
     
 extern Object *App, *Win;
 

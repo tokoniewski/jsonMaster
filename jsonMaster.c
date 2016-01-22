@@ -231,6 +231,7 @@ long FontLoad_noHook(int size)
     char *font_name = 0;
     APTR oldfont = font;
     struct Window *syswin = 0;
+    int bl = 0;
     
     if (size==0)
         size = JM_DEFAULT_FONT_SIZE;
@@ -239,15 +240,21 @@ long FontLoad_noHook(int size)
     GetAttr(MUIA_Window_Window, Win, &syswin);
     //rp = syswin->RPort;      
     //printf("FOnt name: %s \n", font_name);
-    SetAttrs(findobj(JM_OBJ_BUTTON_INFO, App), MUIA_Text_Contents, font_name);    
-    //font = 0;    
+    SetAttrs(findobj(JM_OBJ_BUTTON_INFO, App), MUIA_Text_Contents, "Font loading...");    
+    //font = 0; 
+        SetAttrs (App, MUIA_Application_Sleep, TRUE, TAG_END); 
     font = init_font(font_name, size);
+        SetAttrs (App, MUIA_Application_Sleep, FALSE, TAG_END); 
     if (font)
-    {
+    {        
         if (syswin->RPort)
                 TT_SetFont(syswin->RPort, font);
         //printf("OK. Font ready\n");
         SetAttrs(findobj(JM_OBJ_BUTTON_INFO, App), MUIA_Text_Contents, "OK. Font ready");
+        TT_SetAttrs(syswin->RPort, TT_Window, (ULONG)syswin, TAG_END);
+        //TT_GetAttrs(syswin->RPort, TT_FontBaseline, &bl, TAG_DONE);
+        //printf("Baseline: %d\n", bl);
+        
         if(oldfont)
                 TT_CloseFont(oldfont);  
         MUI_Redraw(ttbitmap_obj, MADF_DRAWOBJECT);        
@@ -557,13 +564,15 @@ long close_about(Object* obj,  Msg msg)
 }
 int setget_test()
 {
+    int sizeval2;
     //GetAttr(MUIA_UserData, obj, &sizeval);
-    //GetAttr(TTBM_FONT_SIZE, ttbitmap_obj, &sizeval2);
+    GetAttr(TTBM_FONT_SIZE, ttbitmap_obj, &sizeval2);
     //printf("size from menu UserData: %d\n", sizeval);
-    //printf("size from ttbitmap get: %d\n", sizeval2);    
+    printf("size from ttbitmap get: %d\n", sizeval2);    
     //printf("SetAttrs %d \n", SetAttrs(ttbitmap_obj, TTBM_FONT_SIZE, 789, TTBM_FONT_PATH, "test path", TAG_END));
-    //DoMethod(ttbitmap_obj, TTBM_FONT_SIZE, 789);
-    //DoMethod(ttbitmap_obj, TTBM_FONT_PATH, "test path");
+    //printf("SetAttrs %d \n", SetAttrs(ttbitmap_obj, TTBM_FONT_SIZE, 789, TAG_END));
+    
+    
 }
 
 long get_font_size_from_menu()
@@ -573,11 +582,11 @@ long get_font_size_from_menu()
     Object *mpoz = 0;
     Object *menusize = findobj(JM_OBJ_MENU_SIZE, App);
     
-    printf("get_font_size_from_menu() START\n");
+    //printf("get_font_size_from_menu() START\n");
     if (menusize)
         for (i=0; i<5; i++)
 	{           
-            printf("get_font_size_from_menu() %d\n", i);
+            //printf("get_font_size_from_menu() %d\n", i);
             mpoz = 0; mpoz = findobj(10+(i*2), menusize);
             if (mpoz)
                 GetAttr(MUIA_Menuitem_Checked, mpoz, &ischeck);
@@ -655,6 +664,7 @@ long prev_next_search_hook(Object* obj, int *x reg(a1))
             printf(" Next!\n");
             break;
         case JM_OBJ_BTN_SEARCH_PREV:
+            setget_test();
             printf(" Prev!\n");
             break;             
     }
@@ -845,8 +855,8 @@ long BuildApplication (void)
         MUIA_Application_Menustrip, BuildMenu(),        
         // ==============================        
         MUIA_Application_Window, Win = MUI_NewObject (MUIC_Window,
-                MUIA_Window_Title, win_title = (long)"jsonMaster c 2014-2016 by BlaBla Corp.",
-                //MUIA_Window_ID, 0x50525A4B,
+                MUIA_Window_Title, win_title = (long)"jsonMaster c 2014-2016 by BlaBla group",
+                MUIA_Window_ID, 0x50525A4B,
                 MUIA_UserData, OBJ_WINDOW,
                 MUIA_Window_AppWindow, TRUE,
                 MUIA_Window_Height, MUIV_Window_Height_Screen(75),      // remove windowId
@@ -886,6 +896,8 @@ long BuildApplication (void)
                 TAG_END),
         TAG_END),
     TAG_END);
+    
+    SetAttrs(ttbitmap_obj, TTBM_FONT_SIZE, JM_DEFAULT_FONT_SIZE);
     
     win_title[11] = copyright;
     screen_title[0] = copyright;  
@@ -935,8 +947,9 @@ void SetNotifications (void)
   for (i=0; i<5; i++)
     DoMethod(findobj((ULONG)(10+(i*2)), App), MUIM_Notify, MUIA_Menuitem_Trigger, MUIV_EveryTime,
         findobj((ULONG)(10+(i*2)), App), 3, MUIM_CallHook, &h_font_size, 10+(i*2));
-    //DoMethod(findobj((ULONG)(10+(i*2)), App), MUIM_Notify, MUIA_Menuitem_Trigger, MUIV_EveryTime,
-      //  ttbitmap_obj, 3, MUIM_Set, TTBM_FONT_SIZE, findobj((ULONG)(10+(i*2)), App));
+  for (i=0; i<5; i++)
+    DoMethod(findobj((ULONG)(10+(i*2)), App), MUIM_Notify, MUIA_Menuitem_Trigger, MUIV_EveryTime,
+        ttbitmap_obj, 3, MUIM_Set, TTBM_FONT_SIZE, 10+(i*2));
     
   DoMethod(findobj(JM_OBJ_MENU_SAVEXML, App), MUIM_Notify, MUIA_Menuitem_Trigger, MUIV_EveryTime,
         App, 2, MUIM_CallHook, &h_save_xml);
