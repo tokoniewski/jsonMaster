@@ -37,7 +37,7 @@ long mDraw (Class *cl, Object *obj, struct MUIP_Draw *msg)
   //long dx= 20;
   //long dy= 10;
   static char *srctxtptr="dup2";
-  int test = 0;
+  int bl = 0;
   struct RastPort *rp = _rp(obj);
   struct TTBitmap *data = INST_DATA(cl,obj);
   struct MUI_RenderInfo *mri = muiRenderInfo(obj);
@@ -53,11 +53,13 @@ long mDraw (Class *cl, Object *obj, struct MUIP_Draw *msg)
   //SetAttrs (Info, MUIA_Text_Contents, "drawing... ");  
   if (txt16)
   {
-      SetAttrs (findobj(JM_OBJ_BUTTON_INFO, App), MUIA_Text_Contents, "redrawing... ");      
+      SetAttrs (findobj(JM_OBJ_BUTTON_INFO, App), MUIA_Text_Contents, "redrawing... ");
         TT_SetAttrs(rp, TT_Window, _window(obj), TAG_END);
+        TT_GetAttrs(rp, TT_FontBaseline, &bl, TAG_DONE);              
         SetAPen(rp, 2);
         SetDrMd(rp, JAM1);
-        Move(rp, _mleft(obj)+3, _mtop(obj)+3+14);
+        //Move(rp, _mleft(obj)+3, _mtop(obj) + _mheight(obj) - ((_mheight(obj) - bl)/2) );
+        Move(rp, _mleft(obj)+3, _mtop(obj) + (_mheight(obj)/2) + (bl/2) );
         TT_SetAttrs(rp,
             TT_Antialias, TT_Antialias_Off, 
             TT_Encoding, TT_Encoding_UTF16_BE, 
@@ -65,19 +67,14 @@ long mDraw (Class *cl, Object *obj, struct MUIP_Draw *msg)
         //TT_Text(rp, "This is a text printed with TT_Text().", 38);
         TT_Text(rp, txt16, lenchar);
   }
-  /*
-  SetAPen (rp, 1);
-  Move (rp, _mleft(obj) , _mtop(obj) );
-  Draw (rp, _mright(obj) , _mbottom(obj) );
-  Move (rp, _mleft(obj) , _mbottom(obj) );
-  Draw (rp, _mright(obj) , _mtop(obj) );
   
-  SetAPen (rp, 2);
-  Move (rp, (_mleft(obj) + _mright(obj))/2, _mtop(obj) );
-  Draw (rp, (_mleft(obj) + _mright(obj))/2, _mbottom(obj));    
-  Draw (rp, _mleft(obj) , (_mtop(obj) + _mbottom(obj))/2);
-  Draw (rp, _mright(obj), (_mtop(obj) + _mbottom(obj))/2); 
-  */ 
+  SetAPen (rp, 1);
+  Move (rp, _mleft(obj) , _mtop(obj) + (_mheight(obj)/4) );
+  Draw (rp, _mright(obj) , _mtop(obj) + (_mheight(obj)/4) );
+  //Move (rp, _mleft(obj) , _mtop(obj) + (_mheight(obj)/2) );
+  //Draw (rp, _mright(obj) , _mtop(obj) + (_mheight(obj)/2) );
+  Move (rp, _mleft(obj) , _mbottom(obj) - (_mheight(obj)/4) );
+  Draw (rp, _mright(obj) , _mbottom(obj) - (_mheight(obj)/4) );
   /*
   SetAPen (rp, 2);
   //WritePixel (rp, (_mleft(obj) + _right(obj))/2, _mtop(obj) + 5);
@@ -126,8 +123,8 @@ long mHandleEvent (Class *cl, Object *obj, struct MUIP_HandleEvent *msg)
    {
     if (msg->imsg->Class == IDCMP_MOUSEMOVE)
      {
-      data->DeltaX = msg->imsg->MouseX - _mleft(obj) - 20;
-      data->DeltaY = msg->imsg->MouseY - _mtop(obj) - 20;
+      //data->DeltaX = msg->imsg->MouseX - _mleft(obj) - 20;
+      //data->DeltaY = msg->imsg->MouseY - _mtop(obj) - 20;
       MUI_Redraw (obj, MADF_DRAWOBJECT);
      }
    }
@@ -142,7 +139,7 @@ long TTBitmapGet(Class *cl, Object *obj, struct opGet *msg)
     {
         case TTBM_FONT_SIZE:
             
-            *msg->opg_Storage = 123; 
+            *msg->opg_Storage = data->fontsize; 
             return TRUE;
             
         default:
@@ -163,8 +160,9 @@ long TTBitmapSet(Class *cl, Object *obj, struct opSet *msg)
         switch (tag->ti_Tag)
         {
             case TTBM_FONT_SIZE:
-                GetAttr(MUIA_UserData, tag->ti_Data, &fsize);
-                printf("Setting Font size to %d\n", fsize);
+                //GetAttr(MUIA_UserData, tag->ti_Data, &fsize);
+                printf("Setting Font size to %d\n", tag->ti_Data);
+                data->fontsize = tag->ti_Data;
                 tagcount++;
                 break;
             case TTBM_FONT_PATH:
