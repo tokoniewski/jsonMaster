@@ -620,7 +620,8 @@ long save_xml(Object* obj, Msg msg)
 long test(Object* obj, long *x reg(a1))
 {
     int h = 0;
-    printf("test hook... line [%d] \n", *x);
+    //printf("line [%d] \n", *x);
+    //SetAttrs (findobj(JM_OBJ_BUTTON_LINEINFO, App), MUIA_String_Contents, *x);
     //GetAttr(MUIA_Window_Height, Win, &h);
     //printf("height... %d \n", h);    
     //SetAttrs(ttbitmap_obj, TTBM_FONT_SIZE, 345, TAG_DONE);
@@ -888,10 +889,21 @@ long BuildApplication (void)
                 // ==============================                
                 MUIA_Group_Child, BuildSearchBar(),
                 // ==============================                
-                MUIA_Group_Child, MUI_NewObject (MUIC_Text,        /* pole informacyjne */
-                        MUIA_Frame, MUIV_Frame_Text,
-                        MUIA_Background, MUII_TextBack,
-                        MUIA_UserData, JM_OBJ_BUTTON_INFO, 
+                MUIA_Group_Child, MUI_NewObject (MUIC_Group,
+                        MUIA_Group_Horiz, TRUE,
+                        MUIA_Group_Child, MUI_NewObject (MUIC_Text,       
+                                MUIA_Frame, MUIV_Frame_Text,
+                                MUIA_Background, MUII_TextBack,
+                                MUIA_UserData, JM_OBJ_BUTTON_INFO, 
+                        TAG_END),
+                        /*MUIA_Group_Child, MUI_NewObject (MUIC_String,   
+                                MUIA_String_Format, MUIV_String_Format_Right,
+                                MUIA_String_Integer, TRUE, 
+                                MUIA_Frame, MUIV_Frame_Text,
+                                MUIA_Background, MUII_TextBack,
+                                MUIA_UserData, JM_OBJ_BUTTON_LINEINFO, 
+                                MUIA_HorizWeight, 10,
+                        TAG_END),*/
                 TAG_END),
                 TAG_END),
         TAG_END),
@@ -1011,6 +1023,23 @@ void SetNotifications (void)
   return;
 }
 
+void start_font(void)
+{
+    char *font_name = 0;
+      
+  GetAttr (MUIA_String_Contents, ttf_string , (long*)&font_name);
+  if (strlen(font_name))
+      font = init_font(font_name, JM_DEFAULT_FONT_SIZE);
+  else
+  {
+      font = init_font(JM_DEFAULT_FONT_NAME, JM_DEFAULT_FONT_SIZE);      
+        //SetAttrs(ttf_string, MUIA_String_Contents, (long*)"PROGDIR:DejaVuSans.ttf");
+  }
+  if (!font)
+      SetAttrs (findobj(JM_OBJ_BUTTON_INFO, App), MUIA_Text_Contents, "Can't load default font!");    
+}
+
+
 /* petla glowna programu */
 
 void MainLoop (void)
@@ -1026,8 +1055,8 @@ void MainLoop (void)
   //printf("window: %x\n", syswin);
   //printf("rastport: %x\n", rp);
   
-  font = init_font("PROGDIR:AndaleMo.ttf", JM_DEFAULT_FONT_SIZE);
-  if (rp) TT_SetFont(rp, font);
+  start_font();
+  if (font) TT_SetFont(rp, font);
 
   while (DoMethod (App, MUIM_Application_NewInput, &signals) !=
    MUIV_Application_ReturnID_Quit)

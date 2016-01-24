@@ -27,7 +27,7 @@ long mAskMinMax (Class *cl, Object *obj, struct MUIP_AskMinMax *msg)
   msg->MinMaxInfo->MaxWidth += 1000;
   msg->MinMaxInfo->MinHeight += 20;
   msg->MinMaxInfo->DefHeight += 50;
-  msg->MinMaxInfo->MaxHeight += 800;
+  msg->MinMaxInfo->MaxHeight += 100;
   return 0;
  }
  
@@ -59,7 +59,8 @@ long mDraw (Class *cl, Object *obj, struct MUIP_Draw *msg)
         SetAPen(rp, 2);
         SetDrMd(rp, JAM1);
         //Move(rp, _mleft(obj)+3, _mtop(obj) + _mheight(obj) - ((_mheight(obj) - bl)/2) );
-        Move(rp, _mleft(obj)+3, _mtop(obj) + (_mheight(obj)/2) + (bl/2) );
+        Move(rp, _mleft(obj)+3, _mtop(obj) + ((_mheight(obj)-data->fontsize)/2) + bl );
+        //Move(rp, _mleft(obj)+3, _mtop(obj) + ((_mheight(obj)+bl)/2));
         TT_SetAttrs(rp,
             TT_Antialias, TT_Antialias_Off, 
             TT_Encoding, TT_Encoding_UTF16_BE, 
@@ -69,12 +70,12 @@ long mDraw (Class *cl, Object *obj, struct MUIP_Draw *msg)
   }
   
   SetAPen (rp, 1);
-  Move (rp, _mleft(obj) , _mtop(obj) + (_mheight(obj)/4) );
-  Draw (rp, _mright(obj) , _mtop(obj) + (_mheight(obj)/4) );
+  //Move (rp, _mleft(obj) , _mtop(obj) + ((_mheight(obj)-data->fontsize)/2));
+  //Draw (rp, _mright(obj) , _mtop(obj) + ((_mheight(obj)-data->fontsize)/2));
   //Move (rp, _mleft(obj) , _mtop(obj) + (_mheight(obj)/2) );
   //Draw (rp, _mright(obj) , _mtop(obj) + (_mheight(obj)/2) );
-  Move (rp, _mleft(obj) , _mbottom(obj) - (_mheight(obj)/4) );
-  Draw (rp, _mright(obj) , _mbottom(obj) - (_mheight(obj)/4) );
+  //Move (rp, _mleft(obj) , _mtop(obj) + ((_mheight(obj)-data->fontsize)/2) + bl ) ;
+  //Draw (rp, _mright(obj) , _mtop(obj) + ((_mheight(obj)-data->fontsize)/2) + bl );
   /*
   SetAPen (rp, 2);
   //WritePixel (rp, (_mleft(obj) + _right(obj))/2, _mtop(obj) + 5);
@@ -152,7 +153,6 @@ long TTBitmapSet(Class *cl, Object *obj, struct opSet *msg)
     struct TTBitmap *data = INST_DATA(cl,obj);
     struct TagItem *tag, *tagptr;
     int tagcount = 0;
-    int fsize = 0;
         
     tagptr = msg->ops_AttrList;
     while ((tag = NextTagItem(&tagptr)) != NULL)
@@ -161,12 +161,12 @@ long TTBitmapSet(Class *cl, Object *obj, struct opSet *msg)
         {
             case TTBM_FONT_SIZE:
                 //GetAttr(MUIA_UserData, tag->ti_Data, &fsize);
-                printf("Setting Font size to %d\n", tag->ti_Data);
+                //printf("Setting Font size to %d\n", tag->ti_Data);
                 data->fontsize = tag->ti_Data;
                 tagcount++;
                 break;
             case TTBM_FONT_PATH:
-                printf("Setting Font name to %s\n", tag->ti_Data);
+                //printf("Setting Font name to %s\n", tag->ti_Data);
                 tagcount++;
                 break;                
         }
