@@ -568,11 +568,9 @@ int setget_test()
     //GetAttr(MUIA_UserData, obj, &sizeval);
     GetAttr(TTBM_FONT_SIZE, ttbitmap_obj, &sizeval2);
     //printf("size from menu UserData: %d\n", sizeval);
-    printf("size from ttbitmap get: %d\n", sizeval2);    
+    //printf("size from ttbitmap get: %d\n", sizeval2);    
     //printf("SetAttrs %d \n", SetAttrs(ttbitmap_obj, TTBM_FONT_SIZE, 789, TTBM_FONT_PATH, "test path", TAG_END));
-    //printf("SetAttrs %d \n", SetAttrs(ttbitmap_obj, TTBM_FONT_SIZE, 789, TAG_END));
-    
-    
+    //printf("SetAttrs %d \n", SetAttrs(ttbitmap_obj, TTBM_FONT_SIZE, 789, TAG_END));        
 }
 
 long get_font_size_from_menu()
@@ -630,7 +628,7 @@ long test(Object* obj, long *x reg(a1))
 
 long logger_hook(Object* obj, long *x reg(a1))
 {
-    printf("logger hook: TAG[%s] Value[%d] \n", *x++, *x);
+    //printf("logger hook: TAG[%s] Value[%d] \n", *x++, *x);
 }
 
 int last_selected = 0;
@@ -647,7 +645,7 @@ long next_selected(int prev_selected)
         DoMethod(Win, MUIM_Set, MUIA_Window_ActiveObject, Listview);
  
     DoMethod(findobj(JM_OBJ_LVIEW_LIST, Listview), MUIM_List_NextSelected, &pos);
-    printf("pozycja %d %d\n", pos, prev_selected);
+    //printf("pozycja %d %d\n", pos, prev_selected);
     if (pos != MUIV_List_NextSelected_End)
     {
         DoMethod(findobj(JM_OBJ_LVIEW_LIST, Listview), MUIM_List_Jump, pos);
@@ -665,11 +663,11 @@ long prev_next_search_hook(Object* obj, int *x reg(a1))
     {
         case JM_OBJ_BTN_SEARCH_NEXT:
             last_selected = next_selected(last_selected);
-            printf(" Next!\n");
+            //printf(" Next!\n");
             break;
         case JM_OBJ_BTN_SEARCH_PREV:
             setget_test();
-            printf(" Prev!\n");
+            //printf(" Prev!\n");
             break;             
     }
 }
@@ -685,7 +683,7 @@ long search_hook(Object* obj, long *x reg(a1))
     len = strlen(*x);
     if (len == 0) 
         return 0;
-    printf("serach hook: Value[%s] len:%d\n", *x, len);
+    //printf("serach hook: Value[%s] len:%d\n", *x, len);
     
     DoMethod(findobj(JM_OBJ_LVIEW_LIST, Listview), MUIM_List_Select, MUIV_List_Select_All, MUIV_List_Select_Off, NULL);
     //search_all_in_json(js, *x);   
@@ -700,7 +698,7 @@ long search_hook(Object* obj, long *x reg(a1))
         if (i!=-1)
             j++;
     }
-    printf("found %d pos\n", j);
+    //printf("found %d pos\n", j);
     if (j)
     {
         //last_selected = next_selected(MUIV_List_NextSelected_Start);
@@ -874,7 +872,7 @@ long BuildApplication (void)
                         //MUIA_FillArea, FALSE,
                         MUIA_Frame, MUIV_Frame_Text,
                         MUIA_Background, MUII_TextBack,
-                        MUIA_FixHeight, 30,       
+                        MUIA_FixHeight, 32,       
                         MUIA_UserData, "dup@",
                         MUIA_ShortHelp, (long)" UTF display area... ",
                 TAG_END),

@@ -60,6 +60,7 @@ Object *BuildInfoWin()
                         MUIA_Group_Child, MUI_NewObject (MUIC_Text,
                                 MUIA_Text_Contents, (long)"\33c\33b json Master", 
                         TAG_END),                                                
+                        Child, Label1("\33c " ),              
                         Child, Label1("\33c Version 0.2" ),                        
                         Child, Label1("\33c copyrights 2014-2016 BlaBla group"),
                         Child, Label1("\33c " ),                         

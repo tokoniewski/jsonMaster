@@ -53,13 +53,13 @@ long mDraw (Class *cl, Object *obj, struct MUIP_Draw *msg)
   //SetAttrs (Info, MUIA_Text_Contents, "drawing... ");  
   if (txt16)
   {
-      SetAttrs (findobj(JM_OBJ_BUTTON_INFO, App), MUIA_Text_Contents, "redrawing... ");
+      //SetAttrs (findobj(JM_OBJ_BUTTON_INFO, App), MUIA_Text_Contents, "redrawing... ");
         TT_SetAttrs(rp, TT_Window, _window(obj), TAG_END);
         TT_GetAttrs(rp, TT_FontBaseline, &bl, TAG_DONE);              
         SetAPen(rp, 2);
         SetDrMd(rp, JAM1);
         //Move(rp, _mleft(obj)+3, _mtop(obj) + _mheight(obj) - ((_mheight(obj) - bl)/2) );
-        Move(rp, _mleft(obj)+3, _mtop(obj) + ((_mheight(obj)-data->fontsize)/2) + bl );
+        Move(rp, _mleft(obj)+3, _mtop(obj) + ((_mheight(obj)-bl)/2) + bl );
         //Move(rp, _mleft(obj)+3, _mtop(obj) + ((_mheight(obj)+bl)/2));
         TT_SetAttrs(rp,
             TT_Antialias, TT_Antialias_Off, 

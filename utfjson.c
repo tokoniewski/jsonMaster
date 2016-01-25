@@ -73,18 +73,18 @@ int utf8to16(char *utf8z16, short *txt16, char esc)
                 *txt16 += 0x0010 * (txtptr[2] < 0x40 ? (txtptr[2] - 0x30) : (txtptr[2] - 0x57));                
                 *txt16 += 0x0001 * (txtptr[3] < 0x40 ? (txtptr[3] - 0x30) : (txtptr[3] - 0x57));
                 txtptr+=4;
-            printf("|");                
+            //printf("|");                
             }               
         }
         else
         {
             *txt16 = 0x0000 + *txtptr;
             txtptr++;
-            printf(".");
+            //printf(".");
         }
         txt16++;
     }
-    printf("\n");
+    //printf("\n");
 }
 
 int utf16_esc_rev(char *buffer, int length, char esc)
