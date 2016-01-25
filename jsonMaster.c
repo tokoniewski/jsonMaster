@@ -602,7 +602,7 @@ long font_size(Object* obj, int *size reg(a1))
     if(sizeval<10 || sizeval>24)
         sizeval = JM_DEFAULT_FONT_SIZE;
     
-    printf("font size change to... %d\n", *size);
+    //printf("font size change to... %d\n", *size);
         
     FontLoad_noHook(sizeval);       
     //SetAttrs(findobj(JM_OBJ_BUTTON_INFO, App), MUIA_Text_Contents, "font size change to...");
@@ -621,7 +621,7 @@ long test(Object* obj, long *x reg(a1))
 {
     int h = 0;
     //printf("line [%d] \n", *x);
-    //SetAttrs (findobj(JM_OBJ_BUTTON_LINEINFO, App), MUIA_String_Contents, *x);
+    SetAttrs (findobj(JM_OBJ_BUTTON_LINEINFO, App), MUIA_String_Integer, *x);
     //GetAttr(MUIA_Window_Height, Win, &h);
     //printf("height... %d \n", h);    
     //SetAttrs(ttbitmap_obj, TTBM_FONT_SIZE, 345, TAG_DONE);
@@ -634,6 +634,8 @@ long logger_hook(Object* obj, long *x reg(a1))
 }
 
 int last_selected = 0;
+int selected_counter = 0;
+int selected_number = 0;
 
 long next_selected(int prev_selected)
 {
@@ -652,6 +654,7 @@ long next_selected(int prev_selected)
         SetAttrs(findobj(JM_OBJ_LVIEW_LIST, Listview), MUIA_List_Active, pos, TAG_DONE);
     }
     //else
+        //SetAttrs (findobj(JM_OBJ_BUTTON_INFO, App), MUIA_Text_Contents, " END ");        
       //  SetAttrs(findobj(JM_OBJ_BTN_SEARCH_NEXT, Win), MUIA_Disabled, TRUE, TAG_END);        
     return pos;
 }
@@ -700,7 +703,9 @@ long search_hook(Object* obj, long *x reg(a1))
     printf("found %d pos\n", j);
     if (j)
     {
-        last_selected = next_selected(MUIV_List_NextSelected_Start);
+        //last_selected = next_selected(MUIV_List_NextSelected_Start);
+        last_selected = MUIV_List_NextSelected_Start;  
+        selected_counter = j;
         //SetAttrs(findobj(JM_OBJ_BTN_SEARCH_NEXT, Win), MUIA_Disabled, FALSE, TAG_END);            
     }
 }
@@ -722,13 +727,14 @@ long search_next_in_list(int p, char *x, int sel)
         else
             js = jnode->curjson;
         if (js->type==json_string)
-            if (strncmp(js->u.string.ptr, x, len)==0)
+            //if (strncmp(js->u.string.ptr, x, len)==0)
+            if (strstr(js->u.string.ptr, x)>0)
             {
-                printf(" %s %d %s\n", get_node_name(js), p, js->u.string.ptr);
+                //printf(" %s %d %s\n", get_node_name(js), p, js->u.string.ptr);
                 if (sel)
                     DoMethod(findobj(JM_OBJ_LVIEW_LIST, Listview), MUIM_List_Select, p, MUIV_List_Select_On, NULL);
                 return ++p;
-            }
+            }                
     }    
     return -1;    
     
@@ -856,7 +862,7 @@ long BuildApplication (void)
         MUIA_Application_Menustrip, BuildMenu(),        
         // ==============================        
         MUIA_Application_Window, Win = MUI_NewObject (MUIC_Window,
-                MUIA_Window_Title, win_title = (long)"jsonMaster c 2014-2016 by BlaBla group",
+                MUIA_Window_Title, win_title = (long)"jsonMaster c 2014-2016 by BlaBla",
                 MUIA_Window_ID, 0x50525A4B,
                 MUIA_UserData, OBJ_WINDOW,
                 MUIA_Window_AppWindow, TRUE,
@@ -896,14 +902,14 @@ long BuildApplication (void)
                                 MUIA_Background, MUII_TextBack,
                                 MUIA_UserData, JM_OBJ_BUTTON_INFO, 
                         TAG_END),
-                        /*MUIA_Group_Child, MUI_NewObject (MUIC_String,   
+                        MUIA_Group_Child, MUI_NewObject (MUIC_String,   
                                 MUIA_String_Format, MUIV_String_Format_Right,
-                                MUIA_String_Integer, TRUE, 
+                                //MUIA_String_Integer, TRUE, 
                                 MUIA_Frame, MUIV_Frame_Text,
                                 MUIA_Background, MUII_TextBack,
                                 MUIA_UserData, JM_OBJ_BUTTON_LINEINFO, 
                                 MUIA_HorizWeight, 10,
-                        TAG_END),*/
+                        TAG_END),
                 TAG_END),
                 TAG_END),
         TAG_END),
@@ -1029,7 +1035,7 @@ void start_font(void)
       
   GetAttr (MUIA_String_Contents, ttf_string , (long*)&font_name);
   if (strlen(font_name))
-      font = init_font(font_name, JM_DEFAULT_FONT_SIZE);
+      font = init_font(font_name, get_font_size_from_menu());
   else
   {
       font = init_font(JM_DEFAULT_FONT_NAME, JM_DEFAULT_FONT_SIZE);      
