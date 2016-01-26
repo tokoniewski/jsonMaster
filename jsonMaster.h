@@ -63,11 +63,12 @@ extern Object *App, *Win;
 
 struct SearchBarObj
 {
+    Object *bar;
     Object *field;
     Object *fcount;
     Object *btprev;
     Object *btnext;    
-} typedef BarObj;
+};// typedef BarObj;
 
 #ifdef	__cplusplus
 }

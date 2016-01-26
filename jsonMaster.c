@@ -319,7 +319,7 @@ long LiniaDestructor (long *linia reg(a1), APTR mempool reg(a2))
   return 0;
  }
 
-/* Hook wy�wietlaj�cy */
+/* Hook wyswietlajacy */
 
 long LiniaDisplayer (struct json_node_state *ns reg(a1), char **teksty reg(a2))
  {
@@ -894,7 +894,7 @@ long BuildApplication (void)
                 // ==============================
                 MUIA_Group_Child, Listview = BuildListview(),
                 // ==============================                
-                MUIA_Group_Child, BuildSearchBar(),
+                MUIA_Group_Child, BuildSearchBar()->bar,
                 // ==============================                
                 MUIA_Group_Child, MUI_NewObject (MUIC_Group,
                         MUIA_Group_Horiz, TRUE,

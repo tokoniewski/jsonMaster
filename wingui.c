@@ -16,7 +16,7 @@ extern struct Hook h_LiniaConstructor;
 extern struct Hook h_LiniaDestructor;
 extern struct Hook h_LiniaDisplayer;
 
-BarObj sbarobj;
+struct SearchBarObj sbar;
 
 Object *create_menu(char *label, char *control, LONG objid)
 {
@@ -94,12 +94,13 @@ Object *BuildInfoWin()
     return o;
 }
 
-BarObj *BuildSearchBar()
+//struct SearchBarObj *sbar;
+
+struct SearchBarObj *BuildSearchBar()
 {
     Object ob = 0;
-    Object ob2 = 0;
     
-        ob2 = MUI_NewObject (MUIC_String,
+        sbar.fcount = MUI_NewObject (MUIC_String,
                         MUIA_String_Format, MUIV_String_Format_Right,
                         //MUIA_String_Integer, TRUE, 
                         MUIA_Frame, MUIV_Frame_Text,
@@ -107,36 +108,36 @@ BarObj *BuildSearchBar()
                         MUIA_UserData, JM_OBJ_STR_SEARCH_POS,
                         MUIA_HorizWeight, 10,
                 TAG_END);
-        
-        ob = MUI_NewObject (MUIC_Group,
-                MUIA_Group_Horiz, TRUE,
-                MUIA_FrameTitle, (long)"Search",                
-                MUIA_Frame, MUIV_Frame_Group,
-                MUIA_Background, MUII_GroupBack,
-                TAG_END);
-                
-                MUIA_Group_Child, MUI_NewObject (MUIC_String,
+                        
+                sbar.field = MUI_NewObject (MUIC_String,
                         //MUIA_ShowMe, FALSE,          
                         MUIA_Frame, MUIV_Frame_String,
                         //MUIA_ObjectID, 0x01234567,                                                
                         MUIA_CycleChain, TRUE,	
                         MUIA_UserData, JM_OBJ_STR_SEARCH,
                         MUIA_HorizWeight, 70,
-                        TAG_DONE),
+                TAG_DONE);
                 //MUIA_Group_Child, ob2,
-                MUIA_Group_Child, create_button("\33cPrev", 0, JM_OBJ_BTN_SEARCH_PREV),                        
-                MUIA_Group_Child, create_button("\33cNext", 0, JM_OBJ_BTN_SEARCH_NEXT),
+                sbar.btprev = create_button("\33cPrev", 0, JM_OBJ_BTN_SEARCH_PREV);                        
+                sbar.btnext = create_button("\33cNext", 0, JM_OBJ_BTN_SEARCH_NEXT);
                 //TAG_END);
+        sbar.bar = MUI_NewObject (MUIC_Group,
+                MUIA_Group_Horiz, TRUE,
+                MUIA_FrameTitle, (long)"Search",                
+                MUIA_Frame, MUIV_Frame_Group,
+                MUIA_Background, MUII_GroupBack,
+                MUIA_Group_Child, sbar.field,
+                MUIA_Group_Child, sbar.fcount,                
+                MUIA_Group_Child, sbar.btprev,
+                MUIA_Group_Child, sbar.btnext,
+        TAG_END);        
+        ob = sbar.bar;
+                
         SetAttrs(findobj(JM_OBJ_BTN_SEARCH_NEXT, ob), MUIA_HorizWeight, 15, TAG_END);
         SetAttrs(findobj(JM_OBJ_BTN_SEARCH_PREV, ob), MUIA_HorizWeight, 15, TAG_END);        
         //SetAttrs(findobj(JM_OBJ_BTN_SEARCH_NEXT, ob), MUIA_Disabled, TRUE, TAG_END);
         //SetAttrs(findobj(JM_OBJ_BTN_SEARCH_PREV, ob), MUIA_Disabled, TRUE, TAG_END);  
-
-        //if (ob)
-          //  if (ob2)
-            //    DoMethod(findobj(JM_OBJ_STR_SEARCH, ob), MUIM_Family_Insert, ob2, findobj(JM_OBJ_BTN_SEARCH_PREV, ob));
-                //DoMethod(ob, MUIM_Family_AddHead, ob2);
-        return ob;
+        return &sbar;
 }
 
 Object *BuildMenu()

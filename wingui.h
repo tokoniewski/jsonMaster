@@ -9,6 +9,8 @@
 #ifndef WINGUI_H
 #define	WINGUI_H
 
+#include "jsonMaster.h"
+
 #define MUI_MENU_BARLABEL      MUI_NewObject(MUIC_Menuitem, MUIA_Menuitem_Title, NM_BARLABEL, TAG_END) 
 
 #ifdef	__cplusplus
@@ -18,7 +20,7 @@ extern "C" {
 Object *create_button(char *label, char *control, LONG objid);
 Object *create_menu(char *label, char *control, LONG objid);
 Object *BuildInfoWin();
-Object *BuildSearchBar();
+struct SearchBarObj *BuildSearchBar();
 Object *BuildMenu();
 Object *BuildTTFfontReq();
 Object *BuildJsonFileReq();
