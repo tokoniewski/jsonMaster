@@ -639,17 +639,20 @@ long next_selected(int prev_selected)
 {
     long pos = prev_selected;
     //if (pos != MUIV_List_NextSelected_End)
-      //  SetAttrs(findobj(JM_OBJ_BTN_SEARCH_NEXT, Win), MUIA_Disabled, FALSE, TAG_END);    
-    
+      //  SetAttrs(findobj(JM_OBJ_BTN_SEARCH_NEXT, Win), MUIA_Disabled, FALSE, TAG_END);        
     if (pos == MUIV_List_NextSelected_Start)
+    {
         DoMethod(Win, MUIM_Set, MUIA_Window_ActiveObject, Listview);
- 
+        selected_counter = 0;
+    }
     DoMethod(findobj(JM_OBJ_LVIEW_LIST, Listview), MUIM_List_NextSelected, &pos);
     //printf("pozycja %d %d\n", pos, prev_selected);
     if (pos != MUIV_List_NextSelected_End)
     {
         DoMethod(findobj(JM_OBJ_LVIEW_LIST, Listview), MUIM_List_Jump, pos);
         SetAttrs(findobj(JM_OBJ_LVIEW_LIST, Listview), MUIA_List_Active, pos, TAG_DONE);
+        selected_counter++;
+        SetAttrs (findobj(JM_OBJ_STR_SEARCH_POS, App), MUIA_String_Integer, selected_counter);
     }
     //else
         //SetAttrs (findobj(JM_OBJ_BUTTON_INFO, App), MUIA_Text_Contents, " END ");        

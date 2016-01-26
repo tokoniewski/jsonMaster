@@ -45,6 +45,7 @@ extern "C" {
 #define JM_OBJ_BTN_SEARCH_NEXT  0x620
 #define JM_OBJ_BTN_SEARCH_PREV  0x621
 #define JM_OBJ_STR_SEARCH       0x622
+#define JM_OBJ_STR_SEARCH_POS   0x623
     
 #define JM_OBJ_BTN_ABOUT_OK     0x630    
 
@@ -59,6 +60,14 @@ extern "C" {
 #define   JM_App_Version        "$VER: jsonMaster 0.2 (21.01.2016) BLABLA PRODUCT"
     
 extern Object *App, *Win;
+
+struct SearchBarObj
+{
+    Object *field;
+    Object *fcount;
+    Object *btprev;
+    Object *btnext;    
+} typedef BarObj;
 
 #ifdef	__cplusplus
 }

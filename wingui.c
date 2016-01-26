@@ -16,6 +16,8 @@ extern struct Hook h_LiniaConstructor;
 extern struct Hook h_LiniaDestructor;
 extern struct Hook h_LiniaDisplayer;
 
+BarObj sbarobj;
+
 Object *create_menu(char *label, char *control, LONG objid)
 {
         Object *obj;
@@ -92,14 +94,27 @@ Object *BuildInfoWin()
     return o;
 }
 
-Object *BuildSearchBar()
+BarObj *BuildSearchBar()
 {
     Object ob = 0;
+    Object ob2 = 0;
+    
+        ob2 = MUI_NewObject (MUIC_String,
+                        MUIA_String_Format, MUIV_String_Format_Right,
+                        //MUIA_String_Integer, TRUE, 
+                        MUIA_Frame, MUIV_Frame_Text,
+                        MUIA_Background, MUII_TextBack,
+                        MUIA_UserData, JM_OBJ_STR_SEARCH_POS,
+                        MUIA_HorizWeight, 10,
+                TAG_END);
+        
         ob = MUI_NewObject (MUIC_Group,
                 MUIA_Group_Horiz, TRUE,
                 MUIA_FrameTitle, (long)"Search",                
                 MUIA_Frame, MUIV_Frame_Group,
                 MUIA_Background, MUII_GroupBack,
+                TAG_END);
+                
                 MUIA_Group_Child, MUI_NewObject (MUIC_String,
                         //MUIA_ShowMe, FALSE,          
                         MUIA_Frame, MUIV_Frame_String,
@@ -108,13 +123,19 @@ Object *BuildSearchBar()
                         MUIA_UserData, JM_OBJ_STR_SEARCH,
                         MUIA_HorizWeight, 70,
                         TAG_DONE),
+                //MUIA_Group_Child, ob2,
                 MUIA_Group_Child, create_button("\33cPrev", 0, JM_OBJ_BTN_SEARCH_PREV),                        
                 MUIA_Group_Child, create_button("\33cNext", 0, JM_OBJ_BTN_SEARCH_NEXT),
-                TAG_END);
+                //TAG_END);
         SetAttrs(findobj(JM_OBJ_BTN_SEARCH_NEXT, ob), MUIA_HorizWeight, 15, TAG_END);
         SetAttrs(findobj(JM_OBJ_BTN_SEARCH_PREV, ob), MUIA_HorizWeight, 15, TAG_END);        
         //SetAttrs(findobj(JM_OBJ_BTN_SEARCH_NEXT, ob), MUIA_Disabled, TRUE, TAG_END);
-        //SetAttrs(findobj(JM_OBJ_BTN_SEARCH_PREV, ob), MUIA_Disabled, TRUE, TAG_END);                
+        //SetAttrs(findobj(JM_OBJ_BTN_SEARCH_PREV, ob), MUIA_Disabled, TRUE, TAG_END);  
+
+        //if (ob)
+          //  if (ob2)
+            //    DoMethod(findobj(JM_OBJ_STR_SEARCH, ob), MUIM_Family_Insert, ob2, findobj(JM_OBJ_BTN_SEARCH_PREV, ob));
+                //DoMethod(ob, MUIM_Family_AddHead, ob2);
         return ob;
 }
 
