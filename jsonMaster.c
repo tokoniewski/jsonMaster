@@ -618,7 +618,7 @@ long save_xml(Object* obj, Msg msg)
 long test(Object* obj, long *x reg(a1))
 {
     int h = 0;
-    //printf("line [%d] \n", *x);
+    //printf("line [%d] \n", *x);    
     SetAttrs (findobj(JM_OBJ_BUTTON_LINEINFO, App), MUIA_String_Integer, *x);
     //GetAttr(MUIA_Window_Height, Win, &h);
     //printf("height... %d \n", h);    
@@ -638,6 +638,8 @@ int selected_number = 0;
 long next_selected(int prev_selected)
 {
     long pos = prev_selected;
+    //if (selected_number==0)
+      //  return MUIV_List_NextSelected_Start;
     //if (pos != MUIV_List_NextSelected_End)
       //  SetAttrs(findobj(JM_OBJ_BTN_SEARCH_NEXT, Win), MUIA_Disabled, FALSE, TAG_END);        
     if (pos == MUIV_List_NextSelected_Start)
@@ -654,8 +656,12 @@ long next_selected(int prev_selected)
         selected_counter++;
         SetAttrs (findobj(JM_OBJ_STR_SEARCH_POS, App), MUIA_String_Integer, selected_counter);
     }
-    //else
-        //SetAttrs (findobj(JM_OBJ_BUTTON_INFO, App), MUIA_Text_Contents, " END ");        
+    else
+    {
+        SetAttrs (findobj(JM_OBJ_STR_SEARCH_POS, App), MUIA_String_Integer, selected_number);     
+        SetAttrs (Win, MUIA_Window_ActiveObject, findobj(JM_OBJ_STR_SEARCH, Win));     
+    }
+    //SetAttrs (findobj(JM_OBJ_BUTTON_INFO, App), MUIA_Text_Contents, " END ");        
       //  SetAttrs(findobj(JM_OBJ_BTN_SEARCH_NEXT, Win), MUIA_Disabled, TRUE, TAG_END);        
     return pos;
 }
@@ -675,11 +681,15 @@ long prev_next_search_hook(Object* obj, int *x reg(a1))
     }
 }
 
-long search_hook(Object* obj, long *x reg(a1))
+long search_hook(Object* obj, long *x2 reg(a1))
 {
+    char *x1 = 0;
+    char **x = &x1;
     int j, i, len = 0;
     json_value *nn = 0;
     json_value *js = jo;
+    
+    GetAttr(MUIA_String_Contents, findobj(JM_OBJ_STR_SEARCH, Win), &x1);
     
     if (*x == 0)
         return 0;
@@ -687,7 +697,8 @@ long search_hook(Object* obj, long *x reg(a1))
     if (len == 0) 
         return 0;
     //printf("serach hook: Value[%s] len:%d\n", *x, len);
-    
+    selected_counter = 0;
+    selected_number = 0;    
     DoMethod(findobj(JM_OBJ_LVIEW_LIST, Listview), MUIM_List_Select, MUIV_List_Select_All, MUIV_List_Select_Off, NULL);
     //search_all_in_json(js, *x);   
     //nn = js;
@@ -706,9 +717,12 @@ long search_hook(Object* obj, long *x reg(a1))
     {
         //last_selected = next_selected(MUIV_List_NextSelected_Start);
         last_selected = MUIV_List_NextSelected_Start;  
-        selected_counter = j;
+        selected_counter = 0;
+        selected_number = j;
         //SetAttrs(findobj(JM_OBJ_BTN_SEARCH_NEXT, Win), MUIA_Disabled, FALSE, TAG_END);            
     }
+    SetAttrs (findobj(JM_OBJ_STR_SEARCH_POS, App), MUIA_String_Integer, selected_number);        
+    return j;
 }
 
 long search_next_in_list(int p, char *x, int sel)
@@ -720,6 +734,8 @@ long search_next_in_list(int p, char *x, int sel)
     
     for(;;p++)
     {
+        jnode = 0;
+        //if (p>1000) break;
         DoMethod(findobj(JM_OBJ_LVIEW_LIST, Listview), MUIM_List_GetEntry, p, &jnode);
         if (jnode == NULL)
             return -1;        
@@ -731,7 +747,7 @@ long search_next_in_list(int p, char *x, int sel)
             //if (strncmp(js->u.string.ptr, x, len)==0)
             if (strstr(js->u.string.ptr, x)>0)
             {
-                //printf(" %s %d %s\n", get_node_name(js), p, js->u.string.ptr);
+                //printf(" %s %d \n", get_node_name(js), p); //, js->u.string.ptr);
                 if (sel)
                     DoMethod(findobj(JM_OBJ_LVIEW_LIST, Listview), MUIM_List_Select, p, MUIV_List_Select_On, NULL);
                 return ++p;
@@ -845,6 +861,9 @@ long BuildApplication (void)
     char copyright = 0xA9; 
     char *win_title = 0;
     char *screen_title = 0;
+    struct SearchBarObj *sbar = 0;
+    
+    sbar = BuildSearchBar();
     
     App = MUI_NewObject(MUIC_Application,
         MUIA_Application_Author, (long)JM_App_Author,
@@ -894,7 +913,7 @@ long BuildApplication (void)
                 // ==============================
                 MUIA_Group_Child, Listview = BuildListview(),
                 // ==============================                
-                MUIA_Group_Child, BuildSearchBar()->bar,
+                MUIA_Group_Child, sbar->bar,
                 // ==============================                
                 MUIA_Group_Child, MUI_NewObject (MUIC_Group,
                         MUIA_Group_Horiz, TRUE,
@@ -903,6 +922,7 @@ long BuildApplication (void)
                                 MUIA_Background, MUII_TextBack,
                                 MUIA_UserData, JM_OBJ_BUTTON_INFO, 
                         TAG_END),
+                        MUIA_Group_Child, sbar->fcount,  
                         MUIA_Group_Child, MUI_NewObject (MUIC_String,   
                                 MUIA_String_Format, MUIV_String_Format_Right,
                                 //MUIA_String_Integer, TRUE, 

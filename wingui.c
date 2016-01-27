@@ -127,7 +127,7 @@ struct SearchBarObj *BuildSearchBar()
                 MUIA_Frame, MUIV_Frame_Group,
                 MUIA_Background, MUII_GroupBack,
                 MUIA_Group_Child, sbar.field,
-                MUIA_Group_Child, sbar.fcount,                
+                //MUIA_Group_Child, sbar.fcount,                
                 MUIA_Group_Child, sbar.btprev,
                 MUIA_Group_Child, sbar.btnext,
         TAG_END);        

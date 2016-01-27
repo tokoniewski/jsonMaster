@@ -15,7 +15,7 @@ p1: $(NAZWA).o jsonutil.o json.o utfjson.o ttbitmap.o wingui.o
 p2: p1
 	rm /cygdrive/p/$(NAZWA)2	
 	cp $(NAZWA).exe /cygdrive/p/$(NAZWA)2
-	cp $(NAZWA).exe /cygdrive/d/WinUAE/AmigaSYS/Work/mapnik/$(NAZWA)2
+	#cp $(NAZWA).exe /cygdrive/d/WinUAE/AmigaSYS/Work/mapnik/$(NAZWA)2
 	#cp \\N111-0101\$(ES)\V\_A R C H I W U M\WinUAE\AmigaSYS\Work\$(NAZWA)2	
 	
 jsonutil.o: jsonutil.cpp jsonutil.h	
