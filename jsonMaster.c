@@ -922,7 +922,7 @@ long BuildApplication (void)
                                 MUIA_Background, MUII_TextBack,
                                 MUIA_UserData, JM_OBJ_BUTTON_INFO, 
                         TAG_END),
-                        MUIA_Group_Child, sbar->fcount,  
+                        //MUIA_Group_Child, sbar->fcount,  
                         MUIA_Group_Child, MUI_NewObject (MUIC_String,   
                                 MUIA_String_Format, MUIV_String_Format_Right,
                                 //MUIA_String_Integer, TRUE, 
@@ -1059,8 +1059,8 @@ void start_font(void)
       font = init_font(font_name, get_font_size_from_menu());
   else
   {
-      font = init_font(JM_DEFAULT_FONT_NAME, JM_DEFAULT_FONT_SIZE);      
-        //SetAttrs(ttf_string, MUIA_String_Contents, (long*)"PROGDIR:DejaVuSans.ttf");
+      font = init_font(JM_DEFAULT_FONT_NAME, JM_DEFAULT_FONT_SIZE);
+      SetAttrs(ttf_string, MUIA_String_Contents, JM_DEFAULT_FONT_NAME);   //(long*)"PROGDIR:DejaVuSans.ttf");
   }
   if (!font)
       SetAttrs (findobj(JM_OBJ_BUTTON_INFO, App), MUIA_Text_Contents, "Can't load default font!");    
