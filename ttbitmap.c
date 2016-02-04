@@ -1,4 +1,4 @@
-//#include <proto/exec.h>
+#include <proto/exec.h>
 //#include <proto/intuition.h>
 //#include <proto/muimaster.h>
 #include <libraries/mui.h>
@@ -174,7 +174,39 @@ long TTBitmapSet(Class *cl, Object *obj, struct opSet *msg)
     tagcount += DoSuperMethodA(cl, obj, (Msg)msg);
     return tagcount;
 }
-               
+
+ULONG mCreateShortHelp (Class *cl, Object *obj, struct  MUIP_CreateShortHelp *msg)
+{
+        STRPTR help;
+           int mx = msg->mx;
+           int my = msg->my;
+           
+           mx -= _mleft(obj); // make coordinates relative
+           my -= _mtop(obj);
+
+           // no bubble at all if mouse is in a 10 pixel
+           // wide x-region at the edge of the object.
+           if (mx < 10 || mx > _mwidth(obj)-10)
+              return(NULL);
+
+           // allocate space for bubble text
+           if (!(help=AllocVec(300,MEMF_ANY)))
+              return(NULL);
+
+           // fill help string with some dynamic text
+           sprintf(help,"Yahoo... very dynamic... %ld %ld",mx,my);
+
+           return(help);
+
+    return DoSuperMethodA (cl, obj, msg);
+}
+
+long mDeleteShortHelp (Class *cl, Object *obj, struct MUIP_DeleteShortHelp *msg)
+{
+    FreeVec(msg->help);
+    return NULL;
+}
+
 /* dispatcher */
 __saveds long TTBitmapDispatcher (Class *cl reg(a0), Object *obj reg(a2), Msg msg reg(a1))
  {
@@ -184,6 +216,8 @@ __saveds long TTBitmapDispatcher (Class *cl reg(a0), Object *obj reg(a2), Msg ms
     case OM_SET:                return (TTBitmapSet(cl, obj, (struct opSet *)msg));          
     //case OM_SET:                return DoSuperMethodA (cl, obj, msg);
     //case OM_GET:                return DoSuperMethodA (cl, obj, msg);
+    case MUIM_CreateShortHelp:    return (mCreateShortHelp (cl, obj, msg));    
+    case MUIM_DeleteShortHelp:    return (mDeleteShortHelp (cl, obj, msg));       
     case MUIM_Setup:              return (mSetup (cl, obj, msg));
     case MUIM_Cleanup:            return (mCleanup (cl, obj, msg));
     case MUIM_AskMinMax:          return (mAskMinMax (cl, obj, (struct MUIP_AskMinMax*)msg));
