@@ -1029,6 +1029,9 @@ void SetNotifications (void)
   DoMethod (String, MUIM_Notify, MUIA_String_Acknowledge, MUIV_EveryTime, MUIV_Notify_Self,
         3, MUIM_CallHook, &h_CzytajPlik, Listview);
 
+  DoMethod (findobj(JM_OBJ_BUTTON_FOLDALL, Win), MUIM_Notify, MUIA_Pressed, FALSE,
+        ttbitmap_obj, 5, MUIM_CreateBubble, 5, 5, "test bubble...", NULL);        
+  
   DoMethod (findobj(JM_OBJ_BUTTON_EXPAND, Win), MUIM_Notify, MUIA_Pressed,
         FALSE, findobj(JM_OBJ_BUTTON_INFO, App), 2, MUIM_CallHook, &h_ExpandHook);
   

@@ -24,6 +24,7 @@ struct SearchBarObj *BuildSearchBar();
 Object *BuildMenu();
 Object *BuildTTFfontReq();
 Object *BuildJsonFileReq();
+Object *BuildListView();
 
 #ifdef	__cplusplus
 }
